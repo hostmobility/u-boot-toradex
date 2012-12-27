@@ -1,0 +1,96 @@
+/dts-v1/;
+
+/memreserve/ 0x1c000000 0x04000000;
+/include/ "tegra250.dtsi"
+/include/ "chromeos.dtsi"
+/include/ "flashmap-twostop-4mb.dtsi"
+
+/ {
+	model = "Google Arthur";
+	compatible = "google,arthur", "nvidia,tegra250";
+
+	config {
+		odmdata = <0x300d8011>;
+		hwid = "ARM ARTHUR TEST 3403";
+		machine-arch-id = <3474>;
+
+		/* Chrome OS specific GPIO */
+		/*
+		 * Parameter 3 bits
+		 * bit 0: 1=output, 0=input
+		 * bit 1: 1=high, 0=low
+		 * bit 2: 1=active low, 0=active high
+		 */
+		write-protect-switch	= <&gpio 59 0>; /* GMI-AD11 - PH3 */
+		recovery-switch		= <&gpio 56 4>; /* GMI-AD08 - PH0 */
+		developer-switch	= <&gpio 168 0>; /* GPIO-PV0 - PV0 */
+		lid-switch		= <&gpio 23 4>; /* GPIO-PC7 - PC7 */
+		power-switch		= <&gpio 170 4>; /* GPIO-PV2 - PV2 */
+	};
+
+	aliases {
+		console = "/serial@70006040";
+                usb0 = "/usb@0xc5000000";
+
+		sdmmc0 = "/sdhci@c8000600";
+
+		i2c0 = "/i2c@0x7000d000";
+		i2c1 = "/i2c@0x7000c000";
+		i2c2 = "/i2c@0x7000c400";
+		i2c3 = "/i2c@0x7000c500";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x40000000>;
+	};
+
+	serial@70006040 {
+		status = "ok";
+		clock-frequency = <216000000>;
+	};
+
+	sdhci@c8000600 {
+		status = "ok";
+		width = <4>;	/* width of SDIO port */
+		removable = <0>;
+	};
+
+	lcd {
+		compatible = "nvidia,tegra2-lcd";
+		width = <1366>;
+		height = <910>;
+		bits_per_pixel = <16>;
+		pwfm = <&pwfm2>;
+		display = <&display1>;
+                /* frame-buffer location = top of memory - carveout - fb */
+                frame-buffer = <0x2f680000>;
+
+		pixel_clock = <82400000>;
+
+		/* Timing: ref_to_sync, sync_width. back_porch, front_porch */
+		horiz_timing = <11 32 112 48>;
+		vert_timing = <1 5 20 2>;
+
+		/* Parameter 3 bit 0:1=output, 0=input; bit 1:1=high, 0=low */
+		backlight-enable = <&gpio 28 1>;	/* PD4 */
+		lvds-shutdown = <&gpio 10 1>;		/* PB2 */
+		backlight-vdd = <&gpio 176 1>;		/* PW0 */
+		panel-vdd = <&gpio 22 1>;		/* PC6 */
+
+		/*
+		* Panel required timings
+		* Timing 1: delay between panel_vdd-rise and data-rise
+		* Timing 2: delay between data-rise and backlight_vdd-rise
+		* Timing 3: delay between backlight_vdd and pwm-rise
+		* Timing 4: delay between pwm-rise and backlight_en-rise
+		*/
+		panel-timings = <0 0 0 0>;
+	};
+
+	usb@0xc5000000 {
+		status = "ok";
+		host-mode = <1>;
+	};
+
+};

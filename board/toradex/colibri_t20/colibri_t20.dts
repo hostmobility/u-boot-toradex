@@ -1,0 +1,241 @@
+/dts-v1/;
+
+/memreserve/ 0x0c000000 0x04000000;
+/include/ "../../nvidia/seaboard/tegra250.dtsi"
+
+/ {
+	model = "Toradex Colibri T20";
+	compatible = "toradex,colibri_t20", "nvidia,tegra20";
+
+	config {
+		machine-arch-id = <3323>;
+	};
+
+	aliases {
+		console = "/serial@70006000";
+		usb0 = "/usb@0xc5004000";
+		usb1 = "/usb@0xc5008000";
+		usb2 = "/usb@0xc5000000";
+
+		sdmmc0 = "/sdhci@c8000600";
+
+		i2c0 = "/i2c@0x7000d000";
+		i2c1 = "/i2c@0x7000c000";
+		i2c2 = "/i2c@0x7000c400";
+		i2c3 = "/i2c@0x7000c500";
+	};
+
+//will be auto detected and fixedup
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x10000000>;
+	};
+
+	uarta: serial@70006000 {
+		status = "ok";
+		clock-frequency = <216000000>;
+	};
+
+	uartb: serial@70006040 {
+		status = "ok";
+		clock-frequency = <216000000>;
+	};
+
+	uartd: serial@70006300 {
+		status = "ok";
+		clock-frequency = <216000000>;
+	};
+
+	sdhci@c8000600 {
+		status = "ok";
+		width = <4>;	/* width of SDIO port */
+		removable = <1>;
+		/* Parameter 3 bit 0:1=output, 0=input; bit 1:1=high, 0=low */
+		cd-gpio = <&gpio 23 0>; /* card detect, gpio PC7 */
+	};
+
+	lcd {
+		compatible = "nvidia,tegra2-lcd";
+		width = <640>;
+		height = <480>;
+		bits_per_pixel = <16>;
+		pwfm = <&pwfm2>;
+		display = <&display1>;
+		/* frame-buffer location = top of memory - carveout - fb */
+		frame-buffer_512 = <0x17400000>; /* 512M - 128M - 12M */
+		frame-buffer_256 = <0x09400000>; /* 256M -  96M - 12M */
+
+		pixel_clock = <25175000>;
+		/* Timing: ref_to_sync, sync_width, back_porch, front_porch */
+		horiz_timing = <0 96 48 16>;
+		vert_timing = <1 2 31 11>;
+
+		/* 800x480@60 (e.g. EDT ET070080DH6)
+		pixel_clock = <32460000>;
+		width = <800>;
+		height = <480>;		 
+		horiz_timing = <1 64 128 64>;
+		vert_timing = <1 3 22 20>;
+		*/
+
+		/* 1024x768 timings
+		pixel_clock = <72000000>;
+		width = <1024>;
+		height = <768>;		 
+		horiz_timing = <0 136 160 24>;
+		vert_timing = <1 6 29 3>; 
+		*/
+
+		/* Parameter 3 bit 0:1=output, 0=input; bit 1:1=high, 0=low */
+		backlight-enable = <&gpio 156 1>; /* PT4 - SODIMM 71: BL_ON */
+		lvds-shutdown = <&gpio 255 1>;
+		backlight-vdd = <&gpio 255 1>;
+		panel-vdd = <&gpio 255 1>;
+
+		/*
+		 * Panel required timings
+		 * Timing 1: delay between panel_vdd-rise and data-rise
+		 * Timing 2: delay between data-rise and backlight_vdd-rise
+		 * Timing 3: delay between backlight_vdd and pwm-rise
+		 * Timing 4: delay between pwm-rise and backlight_en-rise
+		 */
+		panel-timings = <0 0 0 0>;
+	};
+
+	/* EHCI instance 0: USB1_DP/N -> USBOTG_P/N */
+	usb@0xc5000000 {
+		status = "ok";
+		host-mode = <1>;
+	};
+
+	/* EHCI instance 1: ULPI PHY -> ASIX ETH */
+	usb@0xc5004000 {
+		status = "ok";
+		host-mode = <0>;
+	};
+
+	usbphy: usbphy@0 {
+		compatible = "smsc,usb3340";
+		status = "ok";
+	};
+
+	/* EHCI instance 2: USB3_DP/N -> USBH1_P/N */
+	usb@0xc5008000 {
+		status = "ok";
+		utmi = <&usbphy>;
+		host-mode = <0>;
+	};
+
+	/* Colibri T20 256MB V1.2a intermediate */
+	flash1@0x70008000 {
+		/*
+		 * Auto detection uses two hex digits each of vendor ID,
+		 * device ID and fourth byte of read ID separated by commas
+		 */
+		compatible = "micron,MT29F4G08ABBDAH4", "2C,AC,15";
+		controller = <&nand>;
+
+		/* How many bytes for data area */
+		page-data-bytes = <2048>;
+
+		/* How many ECC bytes to be generated for tag bytes */
+		tag-ecc-bytes = <9>;
+
+		/* How many tag bytes in spare area */
+		tag-bytes = <48>;
+
+		/* How many ECC bytes for data area */
+		data-ecc-bytes = <72>;
+
+		skipped-spare-bytes = <4>;
+
+		/*
+		 * How many bytes in spare area
+		 * spare area = skipped bytes + ECC bytes of data area
+		 * + tag bytes + ECC bytes of tag bytes
+		 */
+		page-spare-bytes = <64>;
+
+		/*
+		 * MAX_TRP_TREA:
+		 *  non-EDO mode: value (in ns) = Max(tRP, tREA) + 6ns
+		 *  EDO mode: value (in ns) = tRP timing
+		 * TRH: tREH timing
+		 *
+		 * Timing values: MAX_TRP_TREA, TWB, Max(tCS, tCH, tALS, tALH),
+		 *	TWHR, Max(tCS, tCH, tALS, tALH), TWH, TWP, TRH, TADL
+		 */
+		timing = <12 100 20 80 20 10 12 10 70>;
+	};
+
+	/* Colibri T20 256MB V1.2a new */
+	flash2@0x70008000 {
+		compatible = "micron,MT29F4G08ABBEAH4", "2C,AC,26";
+		controller = <&nand>;
+		page-data-bytes = <4096>;
+		tag-ecc-bytes = <9>;
+		tag-bytes = <48>;
+		data-ecc-bytes = <72>;
+		skipped-spare-bytes = <4>;
+		page-spare-bytes = <128>;
+		timing = <15 100 25 80 25 10 15 10 100>;
+	};
+
+	/* Colibri T20 before V1.1x aka old */
+	flash3@0x70008000 {
+		compatible = "micron,MT29F8G08ABCBB", "2C,38,26";
+		controller = <&nand>;
+		page-data-bytes = <4096>;
+		tag-ecc-bytes = <9>;
+		tag-bytes = <48>;
+		data-ecc-bytes = <72>;
+		skipped-spare-bytes = <4>;
+		page-spare-bytes = <128>;
+		timing = <12 100 20 60 15 10 12 10 70>;
+	};
+
+	/* Colibri T20 512MB V1.2a intermediate */
+	flash4@0x70008000 {
+		compatible = "micron,MT29F8G08ADBDAH4", "2C,A3,15";
+		controller = <&nand>;
+		page-data-bytes = <2048>;
+		tag-ecc-bytes = <9>;
+		tag-bytes = <48>;
+		data-ecc-bytes = <72>;
+		skipped-spare-bytes = <4>;
+		page-spare-bytes = <64>;
+		timing = <12 100 20 80 20 10 12 10 70>;
+	};
+
+	/* Colibri T20 512MB V1.2a new */
+	flash5@0x70008000 {
+		compatible = "micron,MT29F8G08ABBCA", "2C,A3,26";
+		controller = <&nand>;
+		page-data-bytes = <4096>;
+		tag-ecc-bytes = <9>;
+		tag-bytes = <48>;
+		data-ecc-bytes = <72>;
+		skipped-spare-bytes = <4>;
+		page-spare-bytes = <128>;
+		timing = <15 100 25 80 25 10 15 10 100>;
+	};
+
+	/* Colibri T20 512MB 3.3V TSOP test */
+	flash6@0x70008000 {
+		compatible = "samsung,K9K8G08U0B", "EC,D3,95";
+		controller = <&nand>;
+		page-data-bytes = <2048>;
+		tag-ecc-bytes = <9>;
+		tag-bytes = <48>;
+		data-ecc-bytes = <72>;
+		skipped-spare-bytes = <4>;
+		page-spare-bytes = <64>;
+		timing = <20 100 20 60 20 10 12 10 70>;
+	};
+
+	nand-controller@0x70008000 {
+		status = "ok";
+		wp-gpio = <&gpio 144 3>; /* Port S = 18 bit = 0: 18 * 8 + 0 */
+		width = <8>;
+	};
+};

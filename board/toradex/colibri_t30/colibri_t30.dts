@@ -1,0 +1,128 @@
+/dts-v1/;
+
+/memreserve/ 0x1c000000 0x04000000;
+/include/ "../../nvidia/cardhu/tegra30.dtsi"
+
+/ {
+	model = "Toradex Colibri T30";
+	compatible = "toradex,colibri_t30", "nvidia,tegra30";
+
+	config {
+		silent_console = <0>;
+		odmdata = <0x300d8011>;
+		hwid = "ARM CARDHU TEST 6666";
+		machine-arch-id = <3436>;
+	};
+
+	aliases {
+		console = "/serial@70006000";
+		usb0 = "/usb@0x7d004000";
+		usb1 = "/usb@0x7d008000";
+		usb2 = "/usb@0x7d000000";
+
+		sdmmc0 = "/sdhci@78000600";
+		sdmmc1 = "/sdhci@78000200";
+
+		i2c0 = "/i2c@0x7000d000";
+		i2c1 = "/i2c@0x7000c000";
+		i2c2 = "/i2c@0x7000c400";
+		i2c3 = "/i2c@0x7000c500";
+		i2c4 = "/i2c@0x7000c700";
+	};
+
+	chosen {
+		bootargs = "";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x80000000 0xc0000000>;
+	};
+
+	serial@70006000 {
+		status = "ok";
+		/*
+		 * TBD - use CONFIG_SYS_PLLP_BASE_IS_408MHZ somehow here.
+		 * Currently I put this back to 216MHz in fdt_decode.c
+		 */
+		clock-frequency = <408000000>;
+	};
+
+	sdhci@78000200 {
+		status = "ok";
+		width = <4>;	/* width of SDIO port */
+		removable = <1>;
+		/* Parameter 3 bit 0:1=output, 0=input; bit 1:1=high, 0=low */
+		cd-gpio = <&gpio 166 0>; /* card detect, gpio PU6 */ 
+	};
+
+	/* Internal eMMC - SDMMC4 */
+	emmc: sdhci@78000600 {
+		status = "ok";
+		width = <4>;	/* width of SDIO port */
+		removable = <0>;
+	};
+
+	lcd {
+		compatible = "nvidia,tegra2-lcd";
+		width = <640>;
+		height = <480>;
+		bits_per_pixel = <16>;
+		pwfm = <&pwfm0>;
+		display = <&display1>;
+                /* frame-buffer location = top of memory - carveout - fb */
+		frame-buffer = <0xbfb00000>;
+
+		pixel_clock = <25175000>;
+
+		/* Timing: ref_to_sync, sync_width. back_porch, front_porch */
+		horiz_timing = <0 96 48 16>;
+		vert_timing = <1 2 31 11>;
+
+		/* Parameter 3 bit 0:1=output, 0=input; bit 1:1=high, 0=low */
+		backlight-vdd = <&gpio 255 3>;		/* PH0, LCD1_BL_PWM */
+		backlight-enable = <&gpio 255 3>;	/* PH2, LCD1_BL_EN */
+		lvds-shutdown = <&gpio 255 3>;		/* PL2, LVDS1_SHTDN */
+		panel-vdd = <&gpio 255 3>;		/* PL4, EN_VDD_PNL1 */
+
+		/*
+		 * Panel required timings
+		 * Timing 1: delay between panel_vdd-rise and data-rise
+		 * Timing 2: delay between data-rise and backlight_vdd-rise
+		 * Timing 3: delay between backlight_vdd and pwm-rise
+		 * Timing 4: delay between pwm-rise and backlight_en-rise
+		 */
+		panel-timings = <0 0 0 0>;
+	};
+
+	/* EHCI instance 0: USB1_DP/N -> USBC_P/N */
+	usb@0x7d000000 {
+		status = "ok";
+		host-mode = <1>;
+	};
+
+	usbphya: usbphy@0 {
+		compatible = "smsc,usb3315";
+		status = "ok";
+	};
+
+	/* EHCI instance 1: USB2_DP/N -> ASIX ETH */
+	usb@0x7d004000 {
+		status = "ok";
+		utmi = <&usbphya>;
+		host-mode = <0>;
+	};
+
+	usbphyb: usbphy@0 {
+		compatible = "smsc,usb3315";
+		status = "ok";
+	};
+
+	/* EHCI instance 2: USB3_DP/N -> USBH_P/N */
+	usb@0x7d008000 {
+		status = "ok";
+		utmi = <&usbphyb>;
+		host-mode = <0>;
+		vbus-gpio = <&gpio 178 1>;	/* PW2, USBH_PEN */
+	};
+};

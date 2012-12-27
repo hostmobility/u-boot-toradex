@@ -1,0 +1,14 @@
+/dts-v1/;
+
+/include/ "skeleton.dtsi"
+/include/ "chromeos.dtsi"
+/include/ "flashmap-8mb_1mbRom.dtsi"
+
+/ {
+	model = "Google Link";
+	compatible = "google,link", "intel,celeron-ivybridge";
+
+	config {
+	       hwid = "X86 LINK TEST 6638";
+	};
+};
