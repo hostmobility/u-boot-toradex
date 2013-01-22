@@ -94,8 +94,17 @@
 
 #undef CONFIG_LINUXCONSOLE	/* dynamically adjusted */
 
+/* Note! HUSH scripting needs to be enabled for bootcommand/autoscripting */
 #define DEFAULT_BOOTCOMMAND					\
-	"run flashboot; run nfsboot"
+	"usb start;" \
+	"if fatload usb 0:1 ${loadaddr} ${updatefilename}; then" \
+		" if source ${loadaddr}; then" \
+			" exit;" \
+		" else" \
+			" bootm ${loadaddr};" \
+		" fi;" \
+	"fi;" \
+	"run flashboot; run nfsboot;"
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\
@@ -172,6 +181,7 @@
 	"setup=setenv setupargs asix_mac=${ethaddr} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs}\0" \
 	"ubiargs=ubi.mtd=0 root=ubi0:rootfs rootfstype=ubifs\0" \
 	"ubiboot=" UBI_BOOTCMD "\0" \
+	"updatefilename=hmupdate.img\0" \
 	"usbboot=" USB_BOOTCMD "\0" \
 	""
 
