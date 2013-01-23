@@ -104,7 +104,7 @@
 			" bootm ${loadaddr};" \
 		" fi;" \
 	"fi;" \
-	"run flashboot; run nfsboot;"
+	"run ubiboot; run flashboot; run nfsboot;"
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\
@@ -136,9 +136,8 @@
 #define UBI_BOOTCMD						\
 	"run setup; "						\
 	"setenv bootargs ${defargs} ${ubiargs} ${mtdparts} ${setupargs}; "	\
-	"echo Booting from NAND...; "				\
-	"ubi part kernel-ubi && ubi read ${loadaddr} kernel; "	\
-	"bootm"
+	"echo Booting from UBI NAND...; "				\
+	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"	
 
 #define USB_BOOTCMD						\
 	"echo Loading RAM disk and kernel from USB stick...; "	\
@@ -179,7 +178,7 @@
 	"sdargs=root=/dev/mmcblk0p1 ip=:::::eth0:off rw,noatime rootfstype=ext3 rootwait gpt gpt_sector=18945\0" \
 	"sdboot=" SD_BOOTCMD "\0" \
 	"setup=setenv setupargs asix_mac=${ethaddr} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs}\0" \
-	"ubiargs=ubi.mtd=0 root=ubi0:rootfs rootfstype=ubifs\0" \
+	"ubiargs=ubi.mtd=USR root=ubi0:rootfs rootfstype=ubifs\0" \
 	"ubiboot=" UBI_BOOTCMD "\0" \
 	"updatefilename=hmupdate.img\0" \
 	"usbboot=" USB_BOOTCMD "\0" \
