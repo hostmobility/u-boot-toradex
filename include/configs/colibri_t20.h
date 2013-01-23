@@ -104,7 +104,7 @@
 			" bootm ${loadaddr};" \
 		" fi;" \
 	"fi;" \
-	"run ubiboot; run flashboot; run nfsboot;"
+	"run usbboot; run ubiboot; run flashboot; run nfsboot;"
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\
@@ -140,11 +140,11 @@
 	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"	
 
 #define USB_BOOTCMD						\
-	"echo Loading RAM disk and kernel from USB stick...; "	\
-	"usb start && "						\
-	"fatload usb 0:1 0xC08000 rootfs-ext2.img.gz && "	\
-	"fatload usb 0:1 ${loadaddr} uImage;"			\
-	"run ramboot"
+	"run setup; "						\
+	"setenv bootargs ${defargs} ${usbargs} ${mtdparts} ${setupargs}; "	\
+	"usb start; "						\
+	"echo Using kernel and root filesystem on EXT2 formatted USB stick...; "	\
+	"ext2load usb 0:1 ${loadaddr} /boot/uImage && bootm "
 
 #define SD_BOOTCMD					\
 	"run setup; "						\
@@ -181,6 +181,7 @@
 	"ubiargs=ubi.mtd=USR root=ubi0:rootfs rootfstype=ubifs\0" \
 	"ubiboot=" UBI_BOOTCMD "\0" \
 	"updatefilename=hmupdate.img\0" \
+	"usbargs=root=/dev/sda1 ip=:::::eth0:off rw,noatime rootfstype=ext2 rootwait\0" \
 	"usbboot=" USB_BOOTCMD "\0" \
 	""
 
