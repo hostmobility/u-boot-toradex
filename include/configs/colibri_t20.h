@@ -71,7 +71,7 @@
 #define CONFIG_LZO
 
 #undef CONFIG_BOOTDELAY
-#define CONFIG_BOOTDELAY	5
+#define CONFIG_BOOTDELAY	2
 #define CONFIG_NETMASK		255.255.255.0
 #undef CONFIG_IPADDR
 #define CONFIG_IPADDR		192.168.10.2
@@ -104,8 +104,7 @@
 			" bootm ${loadaddr};" \
 		" fi;" \
 	"fi;" \
-	"run usbboot; run flashboot; run nfsboot;"	
-//	"run usbboot; run ubiboot; run flashboot; run nfsboot;"
+	"run usbboot; run ubiboot; run flashboot; run nfsboot;"	
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\
