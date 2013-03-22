@@ -96,15 +96,15 @@
 
 /* Note! HUSH scripting needs to be enabled for bootcommand/autoscripting */
 #define DEFAULT_BOOTCOMMAND					\
-	"usb start;" \
-	"if fatload usb 0:1 ${loadaddr} ${updatefilename}; then" \
-		" if source ${loadaddr}; then" \
-			" exit;" \
-		" else" \
-			" bootm ${loadaddr};" \
-		" fi;" \
-	"fi;" \
-	"run usbboot; run ubiboot; run flashboot; run nfsboot;"	
+	"usb start; ubi part USR; ubifsmount rootfs; " \
+        "if fatload usb 0:1 ${loadaddr} ${updatefilename} || ubifsload ${loadaddr} /boot/${updatefilename}; then" \
+                " if source ${loadaddr}; then" \
+                        " exit;" \
+                " else" \
+                        " bootm ${loadaddr};" \
+                " fi;" \
+        "fi;" \
+        "run usbboot; run ubiboot; run flashboot; run nfsboot;" 
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\
