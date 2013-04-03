@@ -203,6 +203,12 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_CMD_I2C
 
+/* SPI */
+#define CONFIG_TEGRA_SPI
+#define CONFIG_USE_SLINK        /* SPI to PIC on SPI4_CS0 */
+#define CONFIG_CMD_SPI
+
+
 /* PMU and EMC support, requires i2c */
 #define CONFIG_TEGRA_PMU
 #define CONFIG_TEGRA_CLOCK_SCALING

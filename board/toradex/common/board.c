@@ -50,6 +50,9 @@
 #include <asm/io.h>
 
 #include <fdt_decode.h>
+#ifdef CONFIG_TEGRA_SPI
+#include <spi.h>
+#endif
 #ifdef CONFIG_TEGRA_I2C
 #include <i2c.h>
 #endif
@@ -361,6 +364,9 @@ int board_init(void)
 #endif
 
 	clock_verify();
+#ifdef CONFIG_TEGRA_SPI
+	spi_init();
+#endif
 
 	power_det_init();
 

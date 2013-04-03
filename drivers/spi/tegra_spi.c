@@ -86,8 +86,10 @@ void spi_init(void)
 #else
 	id = PERIPH_ID_SPI1;
 #endif
-	/* Change SPI clock to 48MHz, PLLP_OUT0 source */
-	clock_start_periph_pll(id, CLOCK_ID_PERIPH, CLK_48M);
+	/* MX4/VCB SPI clock set to 3.2MHz/4, PLLP_OUT0 source */
+	//clock_start_periph_pll(id, CLOCK_ID_PERIPH, CLK_48M);
+	clock_start_periph_pll(id, CLOCK_ID_PERIPH, CLK_3_1875M);
+
 
 	/* Clear stale status here */
 	reg = SPI_STAT_RDY | SPI_STAT_RXF_FLUSH | SPI_STAT_TXF_FLUSH | \
@@ -109,6 +111,23 @@ void spi_init(void)
 	reg = readl(&spi->command);
 	writel(reg | SPI_CMD_CS_SOFT, &spi->command);
 	debug("spi_init: COMMAND = %08x\n", readl(&spi->command));
+
+
+#ifdef CONFIG_USE_SLINK /* MX4 */
+	/* Set pingroup SLXA/C/D/K to CS4 pins*/
+	
+	pinmux_set_func(PINGRP_SLXA, PMUX_FUNC_SPI4);
+	pinmux_set_func(PINGRP_SLXC, PMUX_FUNC_SPI4);
+	pinmux_set_func(PINGRP_SLXD, PMUX_FUNC_SPI4);
+	pinmux_set_func(PINGRP_SLXK, PMUX_FUNC_SPI4);
+
+	pinmux_tristate_disable(PINGRP_SLXA);
+	pinmux_tristate_disable(PINGRP_SLXC);
+	pinmux_tristate_disable(PINGRP_SLXD);
+	pinmux_tristate_disable(PINGRP_SLXK);
+
+	debug("spi_init: Pin group SLXA/C/D/K as SPI4\n");
+#endif /* CONFIG_USE_SLINK */
 
 #ifdef CONFIG_USE_SFLASH
 	/*
@@ -193,7 +212,9 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	debug("spi_xfer entry: COMMAND = %08x\n", readl(&spi->command));
 	reg = readl(&spi->command2);
 	writel((reg |= (SPI_CMD2_TXEN | SPI_CMD2_RXEN)), &spi->command2);
-	writel((reg |= SPI_CMD2_SS_EN), &spi->command2);
+	/* The line below will hardcode to CS1 (bug?). Change to default,
+	   CS0 used in MX4/VCB */
+	/* writel((reg |= SPI_CMD2_SS_EN), &spi->command2); */
 	debug("spi_xfer: COMMAND2 = %08x\n", readl(&spi->command2));
 #else	/* SPIFLASH a la Tegra2 */
 	reg = readl(&spi->command);
