@@ -8,10 +8,7 @@
 	compatible = "toradex,colibri_t30", "nvidia,tegra30";
 
 	config {
-		silent_console = <0>;
-		odmdata = <0x300d8011>;
-		hwid = "ARM CARDHU TEST 6666";
-		machine-arch-id = <3436>;
+		machine-arch-id = <4493>;
 	};
 
 	aliases {
@@ -28,10 +25,6 @@
 		i2c2 = "/i2c@0x7000c400";
 		i2c3 = "/i2c@0x7000c500";
 		i2c4 = "/i2c@0x7000c700";
-	};
-
-	chosen {
-		bootargs = "";
 	};
 
 	memory {
@@ -53,7 +46,7 @@
 		width = <4>;	/* width of SDIO port */
 		removable = <1>;
 		/* Parameter 3 bit 0:1=output, 0=input; bit 1:1=high, 0=low */
-		cd-gpio = <&gpio 166 0>; /* card detect, gpio PU6 */ 
+		cd-gpio = <&gpio 23 0>; /* card detect, gpio PC7 */
 	};
 
 	/* Internal eMMC - SDMMC4 */
@@ -75,7 +68,7 @@
 
 		pixel_clock = <25175000>;
 
-		/* Timing: ref_to_sync, sync_width. back_porch, front_porch */
+		/* Timing: ref_to_sync, sync_width, back_porch, front_porch */
 		horiz_timing = <0 96 48 16>;
 		vert_timing = <1 2 31 11>;
 

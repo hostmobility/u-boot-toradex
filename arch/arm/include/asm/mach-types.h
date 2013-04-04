@@ -3275,7 +3275,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_CWME9210             3320
 #define MACH_TYPE_CWME9210JS           3321
 #define MACH_TYPE_PGS_SITARA           3322
-#define MACH_TYPE_COLIBRI_TEGRA2       3323
+#define MACH_TYPE_COLIBRI_T20          3323
 #define MACH_TYPE_W21                  3324
 #define MACH_TYPE_POLYSAT1             3325
 #define MACH_TYPE_DATAWAY              3326
@@ -3578,6 +3578,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_ASYMPTOTE            3624
 #define MACH_TYPE_BST2BRD              3625
 #define MACH_TYPE_TX335S               3626
+#define MACH_TYPE_COLIBRI_T30          4493
 
 #ifdef CONFIG_ARCH_EBSA110
 # ifdef machine_arch_type
@@ -42735,16 +42736,16 @@ extern unsigned int __machine_arch_type;
 # define machine_is_pgs_v1()	(0)
 #endif
 
-#ifdef CONFIG_MACH_COLIBRI_TEGRA2
+#ifdef CONFIG_MACH_COLIBRI_T20
 # ifdef machine_arch_type
 #  undef machine_arch_type
 #  define machine_arch_type	__machine_arch_type
 # else
-#  define machine_arch_type	MACH_TYPE_COLIBRI_TEGRA2
+#  define machine_arch_type	MACH_TYPE_COLIBRI_T20
 # endif
-# define machine_is_colibri_tegra2()	(machine_arch_type == MACH_TYPE_COLIBRI_TEGRA2)
+# define machine_is_colibri_t20()	(machine_arch_type == MACH_TYPE_COLIBRI_T20)
 #else
-# define machine_is_colibri_tegra2()	(0)
+# define machine_is_colibri_t20()	(0)
 #endif
 
 #ifdef CONFIG_MACH_W21
@@ -46369,6 +46370,18 @@ extern unsigned int __machine_arch_type;
 # define machine_is_tx335s()	(machine_arch_type == MACH_TYPE_TX335S)
 #else
 # define machine_is_tx335s()	(0)
+#endif
+
+#ifdef CONFIG_MACH_COLIBRI_T30
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_COLIBRI_T30
+# endif
+# define machine_is_colibri_t30()	(machine_arch_type == MACH_TYPE_COLIBRI_T30)
+#else
+# define machine_is_colibri_t30()	(0)
 #endif
 
 /*

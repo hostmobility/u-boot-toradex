@@ -104,7 +104,7 @@
 	"board=colibri_t30\0" \
 	"defargs=console=ttyS0,115200n8 debug_uartport=lsport lp0_vec=0x00002000@0x9C406000 video=tegrafb mem=1023M@2048M vmalloc=128M noinitrd usbcore.old_scheme_first=1 core_edp_mv=1300 panel=lvds tegraid=30.1.2.0.0 tegra_fbmem=3072K@0xBFE00000 \0" \
 	"emmcboot=" EMMC_BOOTCMD "\0" \
-	"mmcargs=root=/dev/mmcblk0p1 ip=:::::eth0:off rw rootwait rootfstype=ext2 gpt gpt_sector=32768 \0" \
+	"mmcargs=root=/dev/mmcblk0p1 ip=:::::eth0:off rw,noatime rootwait rootfstype=ext3 gpt gpt_sector=40960 \0" \
 	"mmc_kernel_sec=0x5000 0x4000 \0" \
 	"nfsargs=ip=:::::eth0:on root=/dev/nfs rw netdevwait\0" \
 	"usbboot=" USB_BOOTCMD "\0"
