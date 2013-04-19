@@ -177,7 +177,7 @@
 	"ramargs=initrd=0xA1800000,32M ramdisk_size=32768 root=/dev/ram0 rw\0" \
 	"sdargs=root=/dev/mmcblk0p1 ip=:::::eth0:off rw,noatime rootfstype=ext3 rootwait gpt gpt_sector=18945\0" \
 	"sdboot=" SD_BOOTCMD "\0" \
-	"setup=setenv setupargs asix_mac=${ethaddr} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs}\0" \
+	"setup=setenv setupargs asix_mac=${ethaddr} g_android.dev_addr=${rndis_dev_mac} g_android.host_addr=${rndis_host_mac} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs}\0" \
 	"ubiargs=ubi.mtd=USR root=ubi0:rootfs rootfstype=ubifs\0" \
 	"ubiboot=" UBI_BOOTCMD "\0" \
 	"updatefilename=hmupdate.img\0" \
