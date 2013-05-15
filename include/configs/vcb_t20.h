@@ -96,8 +96,9 @@
 
 /* Note! HUSH scripting needs to be enabled for bootcommand/autoscripting */
 #define DEFAULT_BOOTCOMMAND					\
-	"usb start; ubi part USR; ubifsmount rootfs; " \
-        "if fatload usb 0:1 ${loadaddr} ${updatefilename} || ubifsload ${loadaddr} /boot/${updatefilename}; then" \
+	"usb start && fatls usb 0:1 && sspi 0:0.1 56 029502000000FE && sspi 0:0.1 24;" \
+	" ubi part USR; ubifsmount rootfs; " \	
+        "if fatload usb 0:1 ${loadaddr} ${updatefilename} || ubifsload ${loadaddr} /boot/${updatefilename}; then" \        
                 " if source ${loadaddr}; then" \
                         " exit;" \
                 " else" \
@@ -136,6 +137,8 @@
 #define UBI_BOOTCMD						\
 	"run setup; "						\
 	"setenv bootargs ${defargs} ${ubiargs} ${mtdparts} ${setupargs}; "	\
+	"sspi 0:0.1 56 02950000000000;" \
+	"sspi 0:0.1 24"	\
 	"echo Booting from UBI NAND...; "				\
 	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"	
 
