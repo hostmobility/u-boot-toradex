@@ -71,7 +71,7 @@
 #define CONFIG_LZO
 
 #undef CONFIG_BOOTDELAY
-#define CONFIG_BOOTDELAY	2
+#define CONFIG_BOOTDELAY	1
 #define CONFIG_NETMASK		255.255.255.0
 #undef CONFIG_IPADDR
 #define CONFIG_IPADDR		192.168.10.2
@@ -172,7 +172,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_STD_DEVICES_SETTINGS \
-	"defargs=usb_high_speed=1\0" \
+	"defargs=usb_high_speed=1 loglevel=0\0" \
 	"flashargs=ip=off root=/dev/mtdblock0 rw rootfstype=yaffs2\0" \
 	"flashboot=" FLASH_BOOTCMD "\0" \
 	"memargs=mem=254M@0M fbmem=0M@0M nvmem=2M@254M\0" \
