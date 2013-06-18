@@ -391,10 +391,9 @@ int fw_env_write(char *name, char *value)
 	 */
 	if (oldval) {
 		/*
-		 * Ethernet Address and serial# can be set only once
+		 * serial# can be set only once
 		 */
-		if ((strcmp (name, "ethaddr") == 0) ||
-			(strcmp (name, "serial#") == 0)) {
+		if (strcmp (name, "serial#") == 0) {
 			fprintf (stderr, "Can't overwrite \"%s\"\n", name);
 			errno = EROFS;
 			return -1;
