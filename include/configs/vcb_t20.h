@@ -173,7 +173,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_STD_DEVICES_SETTINGS \
-	"defargs=usb_high_speed=1 loglevel=0\0" \
+	"defargs=usb_high_speed=1 loglevel=0 quiet\0" \
 	"flashargs=ip=off root=/dev/mtdblock0 rw rootfstype=yaffs2\0" \
 	"flashboot=" FLASH_BOOTCMD "\0" \
 	"memargs=mem=254M@0M fbmem=0M@0M nvmem=2M@254M\0" \
