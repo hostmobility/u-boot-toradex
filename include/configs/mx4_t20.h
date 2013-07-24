@@ -71,7 +71,7 @@
 #define CONFIG_LZO
 
 #undef CONFIG_BOOTDELAY
-#define CONFIG_BOOTDELAY	2
+#define CONFIG_BOOTDELAY	0
 #define CONFIG_NETMASK		255.255.255.0
 #undef CONFIG_IPADDR
 #define CONFIG_IPADDR		192.168.10.2
@@ -96,9 +96,11 @@
 
 /* Note! HUSH scripting needs to be enabled for bootcommand/autoscripting */
 #define DEFAULT_BOOTCOMMAND					\
-	"usb start; ubi part USR; ubifsmount rootfs; " \
-        "if fatload usb 0:1 ${loadaddr} ${updatefilename} || ubifsload ${loadaddr} /boot/${updatefilename}; then" \
-                " if source ${loadaddr}; then" \
+	"usb start && fatls usb 0:1 && sspi 0:0.1 56 029502000000FE && sspi 0:0.1 24;" \
+	" ubi part USR; ubifsmount rootfs; " \
+	"if fatload usb 0:1 ${loadaddr} ${updatefilename} || ubifsload ${loadaddr} " \
+	"/boot/${updatefilename} && sspi 0:0.1 56 029502000000FE && sspi 0:0.1 24; then" \
+	" if source ${loadaddr}; then" \
                         " exit;" \
                 " else" \
                         " bootm ${loadaddr};" \
@@ -136,6 +138,8 @@
 #define UBI_BOOTCMD						\
 	"run setup; "						\
 	"setenv bootargs ${defargs} ${ubiargs} ${mtdparts} ${setupargs}; "	\
+	"sspi 0:0.1 56 02950000000000;" \
+	"sspi 0:0.1 24"	\
 	"echo Booting from UBI NAND...; "				\
 	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"	
 
@@ -169,7 +173,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_STD_DEVICES_SETTINGS \
-	"defargs=video=tegrafb vmalloc=128M usb_high_speed=1\0" \
+	"defargs=video=tegrafb vmalloc=128M usb_high_speed=1 quiet\0" \
 	"flashargs=ip=off root=/dev/mtdblock0 rw rootfstype=yaffs2\0" \
 	"flashboot=" FLASH_BOOTCMD "\0" \
 	"mmcboot=" MMC_BOOTCMD "\0" \
