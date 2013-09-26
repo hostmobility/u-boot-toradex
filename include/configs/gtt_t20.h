@@ -61,6 +61,7 @@
 
 #define CONFIG_TRDX_CFG_BLOCK
 
+
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_ELF
@@ -174,7 +175,9 @@
 	"flashboot=" FLASH_BOOTCMD "\0" \
 	"mmcboot=" MMC_BOOTCMD "\0" \
 	"nfsargs=ip=:::::eth0:on root=/dev/nfs rw netdevwait\0" \
-	"ramargs=initrd=0xA1800000,32M ramdisk_size=32768 root=/dev/ram0 rw\0" \
+	"ramargs=root=/dev/ram0 rw\0" \
+    "ramboot=run setup; setenv bootargs ${defargs} ${ramargs} ${mtdparts} ${setupargs}; echo Booting from RAM...; bootm ${loadaddr} A180000\0" \
+    "usbramdisk=usb start;fatload usb 0:1 A180000 uRamdisk; fatload usb 0:1 ${loadaddr} uImage;run ramboot\0" \
 	"sdargs=root=/dev/mmcblk0p1 ip=:::::eth0:off rw,noatime rootfstype=ext3 rootwait gpt gpt_sector=18945\0" \
 	"sdboot=" SD_BOOTCMD "\0" \
 	"setup=setenv setupargs asix_mac=${ethaddr} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs}\0" \
@@ -256,5 +259,10 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
 #define CONFIG_CMD_IMI
+
+/* Enable ramdisk boot */
+#define CONFIG_INITRD_TAG 1 
+#define CONFIG_SETUP_MEMORY_TAGS 1 
+/* Enable ramdisk boot, end */
 
 #endif /* __CONFIG_H */
