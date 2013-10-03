@@ -33,7 +33,7 @@
 
 /* High-level configuration options */
 #define TEGRA2_SYSMEM		"mem=256M@0M"
-#define V_PROMPT		"MX4 # "
+#define V_PROMPT		"MX4-Consat # "
 
 #define CONFIG_OF_UPDATE_FDT_BEFORE_BOOT 1
 
@@ -95,18 +95,19 @@
 #undef CONFIG_LINUXCONSOLE	/* dynamically adjusted */
 
 /* Note! HUSH scripting needs to be enabled for bootcommand/autoscripting */
-#define DEFAULT_BOOTCOMMAND					\
-	"usb start && fatls usb 0:1 && sspi 0:0.1 56 029502000000FE && sspi 0:0.1 24;" \
-	" ubi part USR; ubifsmount rootfs; " \
-	"if fatload usb 0:1 ${loadaddr} ${updatefilename} || ubifsload ${loadaddr} " \
-	"/boot/${updatefilename} && sspi 0:0.1 56 029502000000FE && sspi 0:0.1 24; then" \
-	" if source ${loadaddr}; then" \
-                        " exit;" \
-                " else" \
-                        " bootm ${loadaddr};" \
-                " fi;" \
-        "fi;" \
-        "run usbboot; run ubiboot; run flashboot; run nfsboot;" 
+#define DEFAULT_BOOTCOMMAND		\
+	"usb start && fatls usb 0:1 && sspi 0:0.1 56 029502000000FE && sspi 0:0.1 24; " \
+	"if fatload usb 0:1 ${loadaddr} ${updatefilename}; then " \
+		"if source ${loadaddr}; then " \
+        	"exit; " \
+        "else " \
+        	"bootm ${loadaddr}; " \
+        "fi; " \
+    "fi; " \
+    "if fatload usb 0:1 ${loadaddr} ${kernelfilename}; then " \
+    	"fatload usb 0:1 ${ramdisk_loadaddr} ${ramdiskfilename} && run ramboot; " \
+    "fi; " \
+    "run ubiboot;" 
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\
@@ -130,10 +131,10 @@
 	"bootm"
 
 #define RAM_BOOTCMD						\
-	"run setup; "						\
-	"setenv bootargs ${defargs} ${ramargs} ${mtdparts} ${setupargs}; "	\
-	"echo Booting from RAM...; "				\
-	"bootm"
+	"run setup; " \
+	"setenv bootargs ${defargs} ${ramargs} ${mtdparts} ${setupargs}; " \
+	"echo Booting from RAM...; "\
+	"bootm ${loadaddr} ${ramdisk_loadaddr}; " \
 
 #define UBI_BOOTCMD						\
 	"run setup; "						\
@@ -179,14 +180,17 @@
 	"mmcboot=" MMC_BOOTCMD "\0" \
 	"nfsargs=ip=:::::eth0:on root=/dev/nfs rw netdevwait\0" \
 	"ramargs=root=/dev/ram0 rw\0" \
-    "ramboot=run setup; setenv bootargs ${defargs} ${ramargs} ${mtdparts} ${setupargs}; echo Booting from RAM...; bootm ${loadaddr} 1000000\0" \
-    "usbramdisk=usb start;fatload usb 0:1 1000000 uRamdisk; fatload usb 0:1 ${loadaddr} uImage;run ramboot\0" \
+    "usbramdisk=usb start;fatload usb 0:1 1000000 ${ramdiskfilename}; fatload usb 0:1 ${loadaddr} ${kernelfilename};run ramboot\0" \
 	"sdargs=root=/dev/mmcblk0p1 ip=:::::eth0:off rw,noatime rootfstype=ext3 rootwait gpt gpt_sector=18945\0" \
 	"sdboot=" SD_BOOTCMD "\0" \
 	"setup=setenv setupargs asix_mac=${ethaddr} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs}\0" \
 	"ubiargs=ubi.mtd=USR root=ubi0:rootfs rootfstype=ubifs\0" \
 	"ubiboot=" UBI_BOOTCMD "\0" \
 	"updatefilename=hmupdate.img\0" \
+	"kernelfilename=uImage\0" \
+	"ramdiskfilename=uRamdisk\0" \
+	"PRODUCT=CONSAT\0" \
+	"ramdisk_loadaddr=1000000\0" \
 	"usbargs=root=/dev/sda1 ip=:::::eth0:off rw,noatime rootfstype=ext2 rootwait\0" \
 	"usbboot=" USB_BOOTCMD "\0" \
 	""
