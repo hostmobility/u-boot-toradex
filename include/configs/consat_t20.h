@@ -139,8 +139,8 @@
 #define UBI_BOOTCMD						\
 	"run setup; "						\
 	"setenv bootargs ${defargs} ${ubiargs} ${mtdparts} ${setupargs}; "	\
-	"sspi 0:0.1 56 02950000000000;" \
-	"sspi 0:0.1 24"	\
+	"sspi 0:0.1 56 02950000000000; " \
+	"sspi 0:0.1 24; "	\
 	"echo Booting from UBI NAND...; "				\
 	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"	
 
