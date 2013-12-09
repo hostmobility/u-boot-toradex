@@ -174,6 +174,7 @@
 	"flashargs=ip=off root=/dev/mtdblock0 rw rootfstype=yaffs2\0" \
 	"flashboot=" FLASH_BOOTCMD "\0" \
 	"mmcboot=" MMC_BOOTCMD "\0" \
+	"memargs=mem=498M@0M fbmem=12M@498M nvmem=2M@510M\0" \
 	"nfsargs=ip=:::::eth0:on root=/dev/nfs rw netdevwait\0" \
 	"ramargs=root=/dev/ram0 rw\0" \
     "ramboot=run setup; setenv bootargs ${defargs} ${ramargs} ${mtdparts} ${setupargs}; echo Booting from RAM...; bootm ${loadaddr} A180000\0" \
