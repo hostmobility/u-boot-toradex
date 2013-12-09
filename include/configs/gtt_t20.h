@@ -183,6 +183,7 @@
 	"setup=setenv setupargs asix_mac=${ethaddr} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs}\0" \
 	"ubiargs=ubi.mtd=USR root=ubi0:rootfs rootfstype=ubifs\0" \
 	"ubiboot=" UBI_BOOTCMD "\0" \
+	"PRODUCT=GTT\0" \
 	"updatefilename=hmupdate.img\0" \
 	"usbargs=root=/dev/sda1 ip=:::::eth0:off rw,noatime rootfstype=ext2 rootwait\0" \
 	"usbboot=" USB_BOOTCMD "\0" \
