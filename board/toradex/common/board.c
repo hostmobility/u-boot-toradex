@@ -1,5 +1,5 @@
 /*
- *  (C) Copyright 2012
+ *  (C) Copyright 2012-2014
  *  Toradex, Inc.
  *
  * See file CREDITS for list of people who contributed to this
@@ -342,6 +342,30 @@ static TrdxBootDevice board_get_current_bootdev(void)
 	return boot_device;
 }
 
+/* Disable PMIC sleep mode on low supply voltage for Colibri T20 */
+static void board_disable_pmic_sleep(void) {
+#ifdef CONFIG_TEGRA2
+	uchar reg, data_buffer[1];
+	int i;
+
+	i2c_set_bus_num(DVC_I2C_BUS_NUMBER);	/* PMU is on bus 0 */
+
+	reg = PMU_SUPPLYENE;
+	for (i = 0; i < MAX_I2C_RETRY; ++i) {
+		if (!i2c_read(PMU_I2C_ADDRESS, reg, 1, data_buffer, 1))
+			break;
+		udelay(100);
+	}
+	data_buffer[0] &= ~PMU_SUPPLYENE_SYSINEN;
+	data_buffer[0] |= PMU_SUPPLYENE_EXITSLREQ;
+	for (i = 0; i < MAX_I2C_RETRY; ++i) {
+		if (!i2c_write(PMU_I2C_ADDRESS, reg, 1, data_buffer, 1))
+			break;
+		udelay(100);
+	}
+#endif
+}
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -376,6 +400,9 @@ int board_init(void)
 	/* Ramp up the core voltage, then change to full CPU speed */
 	i2c_init_board();
 #endif
+
+	/* Disable PMIC sleep mode on low supply voltage */
+	board_disable_pmic_sleep();
 
 #ifdef CONFIG_TEGRA_CLOCK_SCALING
 	pmu_set_nominal();
