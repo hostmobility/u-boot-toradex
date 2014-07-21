@@ -181,10 +181,10 @@
     "usbramdisk=usb start;fatload usb 0:1 A180000 uRamdisk; fatload usb 0:1 ${loadaddr} uImage;run ramboot\0" \
 	"sdargs=root=/dev/mmcblk0p1 ip=:::::eth0:off rw,noatime rootfstype=ext3 rootwait gpt gpt_sector=18945\0" \
 	"sdboot=" SD_BOOTCMD "\0" \
-	"setup=setenv setupargs asix_mac=${ethaddr} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs}\0" \
+	"setup=setenv setupargs asix_mac=${ethaddr} asix_mac2=${ethaddr2} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs}\0" \
 	"ubiargs=ubi.mtd=USR root=ubi0:rootfs rootfstype=ubifs\0" \
 	"ubiboot=" UBI_BOOTCMD "\0" \
-	"PRODUCT=GTT\0" \
+	"PRODUCT=VCC\0" \
 	"updatefilename=hmupdate.img\0" \
 	"usbargs=root=/dev/sda1 ip=:::::eth0:off rw,noatime rootfstype=ext2 rootwait\0" \
 	"usbboot=" USB_BOOTCMD "\0" \
