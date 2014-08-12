@@ -107,7 +107,7 @@
     "if fatload usb 0:1 ${loadaddr} ${kernelfilename}; then " \
     	"fatload usb 0:1 ${ramdisk_loadaddr} ${ramdiskfilename} && run ramboot; " \
     "fi; " \
-    "run ubiboot;" 
+    "run ubiboot;"
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\
@@ -142,7 +142,7 @@
 	"sspi 0:0.1 56 02950000000000; " \
 	"sspi 0:0.1 24; "	\
 	"echo Booting from UBI NAND...; "				\
-	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"	
+	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"
 
 #define USB_BOOTCMD						\
 	"run setup; "						\
@@ -180,10 +180,11 @@
 	"mmcboot=" MMC_BOOTCMD "\0" \
 	"nfsargs=ip=:::::eth0:on root=/dev/nfs rw netdevwait\0" \
 	"ramargs=root=/dev/ram0 rw\0" \
+	"vidargs=video=tegrafb0:800x480CT-32@60 video=tegrafb1:1920x1080-32@60\0" \
     "usbramdisk=usb start;fatload usb 0:1 1000000 ${ramdiskfilename}; fatload usb 0:1 ${loadaddr} ${kernelfilename};run ramboot\0" \
 	"sdargs=root=/dev/mmcblk0p1 ip=:::::eth0:off rw,noatime rootfstype=ext3 rootwait gpt gpt_sector=18945\0" \
 	"sdboot=" SD_BOOTCMD "\0" \
-	"setup=setenv setupargs asix_mac=${ethaddr} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs}\0" \
+	"setup=setenv setupargs asix_mac=${ethaddr} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs} ${vidargs}\0" \
 	"ubiargs=ubi.mtd=USR root=ubi0:rootfs rootfstype=ubifs\0" \
 	"ubiboot=" UBI_BOOTCMD "\0" \
 	"updatefilename=hmupdate.img\0" \
@@ -268,8 +269,8 @@
 #define CONFIG_CMD_IMI
 
 /* Enable ramdisk boot */
-#define CONFIG_INITRD_TAG 1 
-#define CONFIG_SETUP_MEMORY_TAGS 1 
+#define CONFIG_INITRD_TAG 1
+#define CONFIG_SETUP_MEMORY_TAGS 1
 /* Enable ramdisk boot, end */
 
 #endif /* __CONFIG_H */
