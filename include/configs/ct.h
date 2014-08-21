@@ -107,7 +107,7 @@
     "if fatload usb 0:1 ${loadaddr} ${kernelfilename}; then " \
     	"fatload usb 0:1 ${ramdisk_loadaddr} ${ramdiskfilename} && run ramboot; " \
     "fi; " \
-    "run ubiboot;"
+    "run ctubiboot;"
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\
@@ -137,6 +137,12 @@
 	"bootm ${loadaddr} ${ramdisk_loadaddr}; " \
 
 #define UBI_BOOTCMD						\
+	"run setup; "						\
+	"setenv bootargs ${defargs} ${ubiargs} ${mtdparts} ${setupargs}; "	\
+	"echo Booting from UBI NAND...; "				\
+	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"
+
+#define CT_UBI_BOOTCMD						\
 	"run setup; "						\
 	"setenv bootargs ${defargs} ${ubiargs} ${mtdparts} ${setupargs}; "	\
 	"sspi 0:0.1 56 02950000000000; " \
@@ -187,6 +193,7 @@
 	"setup=setenv setupargs asix_mac=${ethaddr} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs} ${vidargs}\0" \
 	"ubiargs=ubi.mtd=USR root=ubi0:rootfs rootfstype=ubifs\0" \
 	"ubiboot=" UBI_BOOTCMD "\0" \
+	"ctubiboot=" CT_UBI_BOOTCMD "\0" \
 	"updatefilename=hmupdate.img\0" \
 	"kernelfilename=uImage\0" \
 	"ramdiskfilename=uRamdisk\0" \
