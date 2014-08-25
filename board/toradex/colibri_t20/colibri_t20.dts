@@ -58,7 +58,7 @@
 		compatible = "nvidia,tegra2-lcd";
 		width = <640>;
 		height = <480>;
-		bits_per_pixel = <16>;
+		bits_per_pixel = <32>;
 		pwfm = <&pwfm2>;
 		display = <&display1>;
 		/* frame-buffer location = top of memory - carveout - fb */
