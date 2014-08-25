@@ -226,7 +226,7 @@ void setup_window(struct disp_ctl_win *win, struct fdt_lcd *config)
 	switch (config->log2_bpp) {
 	case 5:
 	case 24:
-		win->fmt = COLOR_DEPTH_R8G8B8A8;
+		win->fmt = COLOR_DEPTH_B8G8R8A8;
 		win->bpp = 32;
 		break;
 	case 4:
