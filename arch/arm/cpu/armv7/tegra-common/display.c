@@ -90,6 +90,7 @@ static void write_pair(struct fdt_lcd *config, int item, u32 *reg)
 			(config->vert_timing[item] << 16), reg);
 }
 
+#define BASE_COLOR_SIZE888 8
 static int update_display_mode(struct dc_disp_reg *disp,
 		struct fdt_lcd *config)
 {
@@ -113,6 +114,8 @@ static int update_display_mode(struct dc_disp_reg *disp,
 	val |= bf_enum(DATA_ALIGNMENT, MSB);
 	val |= bf_enum(DATA_ORDER, RED_BLUE);
 	writel(val, &disp->disp_interface_ctrl);
+
+	writel(BASE_COLOR_SIZE888, &disp->disp_color_ctrl);
 
 	/*
 	 * The pixel clock divider is in 7.1 format (where the bottom bit
@@ -167,7 +170,7 @@ static void basic_init_timer(struct dc_disp_reg *disp)
 
 static const u32 rgb_enb_tab[PIN_REG_COUNT] = {
 	0x00000000,
-	0x00000000,
+	0x50000000,
 	0x00000000,
 	0x00000000,
 };
