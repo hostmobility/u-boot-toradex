@@ -62,6 +62,10 @@
 #include "../drivers/net/lan91c96.h"
 #endif
 
+#ifdef CONFIG_AM_SPLASH_PARTITION
+#include "../board/toradex/colibri_t20/am_load_splash.h"
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 ulong monitor_flash_len;
@@ -624,6 +628,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
+
+#if defined(CONFIG_AM_SPLASH_PARTITION)
+    am_load_splash();
+#endif
 
 	stdio_init ();	/* get the devices list going. */
 
