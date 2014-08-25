@@ -39,6 +39,18 @@
 
 #include "tegra2-common.h"
 
+#define CONFIG_SPLASH_SCREEN 1
+#define CONFIG_CMD_BMP 1
+#define CONFIG_LCD_BMP_RLE8 1
+#define CONFIG_BMP_16BPP 1
+
+#define CONFIG_VIDEO_BMP_GZIP 1
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE 2000000
+
+#define CONFIG_AM_SPLASH_PARTITION "BMP"
+#define CONFIG_AM_BMP_24 1
+#define CONFIG_AM_BMP_32 1
+
 //careful this might fail kernel booting
 #undef CONFIG_BOOTSTAGE			/* Record boot time */
 #undef CONFIG_BOOTSTAGE_REPORT		/* Print a boot time report */
@@ -51,8 +63,8 @@
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,usbkbd\0" \
-					"stdout=serial,lcd\0" \
-					"stderr=serial,lcd\0"
+					"stdout=serial\0" \
+					"stderr=serial\0"
 
 #define CONFIG_SYS_BOARD_ODMDATA	0x300d8011 /* lp1, 1GB */
 
@@ -201,6 +213,7 @@
 	"ramdisk_loadaddr=1000000\0" \
 	"usbargs=root=/dev/sda1 ip=:::::eth0:off rw,noatime rootfstype=ext2 rootwait\0" \
 	"usbboot=" USB_BOOTCMD "\0" \
+	"splashimage=0x408000\0" \
 	""
 
 /* Dynamic MTD partition support */
@@ -261,7 +274,7 @@
 #define CONFIG_VIDEO_TEGRA
 
 /* TODO: This needs to be configurable at run-time */
-#define LCD_BPP				LCD_COLOR16
+#define LCD_BPP				LCD_COLOR32
 #define CONFIG_SYS_WHITE_ON_BLACK	/* Console colors */
 
 #define CONFIG_DEFAULT_DEVICE_TREE	"colibri_t20"
