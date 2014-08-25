@@ -30,6 +30,10 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS	:= $(BOARD).o
 
+ifdef CONFIG_AM_SPLASH_PARTITION
+COBJS 	+= am_load_splash.o
+endif
+
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 
