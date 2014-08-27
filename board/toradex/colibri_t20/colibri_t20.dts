@@ -88,9 +88,9 @@
 
 		/* Parameter 3 bit 0:1=output, 0=input; bit 1:1=high, 0=low */
 		backlight-enable = <&gpio 156 1>; /* PT4 - SODIMM 71: BL_ON */
-		lvds-shutdown = <&gpio 199 3>;
-		backlight-vdd = <&gpio 199 3>;
-		panel-vdd = <&gpio 199 3>;
+		lvds-shutdown = <&gpio 199 1>;
+		backlight-vdd = <&gpio 199 1>;
+		panel-vdd = <&gpio 199 1>;
 
 		/*
 		 * Panel required timings
