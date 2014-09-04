@@ -240,7 +240,6 @@ static int ping_mx4_pic(void)
 	unsigned int bus = 0, cs = 0, mode = SPI_MODE_1;
 	int	bitlen = 56;
 	int rcode = 0;
-	int j;
 
 	uchar dout[] = { 0x02, 0x95, 0x00, 0x00, 0x00, 0x00, 0x00 };
 	uchar din[MX4_MAX_SPI_BYTES];
