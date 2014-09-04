@@ -229,11 +229,53 @@ int board_early_init_f(void)
 }
 #endif /* CONFIG_BOARD_EARLY_INIT_F */
 
+
+#ifdef CONFIG_PING_MX4
+#define MX4_MAX_SPI_BYTES 8
+
+static int ping_mx4_pic(void)
+{
+	struct spi_slave *slave;
+
+	unsigned int bus = 0, cs = 0, mode = SPI_MODE_1;
+	int	bitlen = 56;
+	int rcode = 0;
+	int j;
+
+	uchar dout[] = { 0x02, 0x95, 0x00, 0x00, 0x00, 0x00, 0x00 };
+	uchar din[MX4_MAX_SPI_BYTES];
+
+	slave = spi_setup_slave(bus, cs, 1000000, mode);
+	if (!slave) {
+		printf("Invalid device %d:%d\n", bus, cs);
+		return 1;
+	}
+
+	spi_claim_bus(slave);
+	if(spi_xfer(slave, bitlen, dout, din, SPI_XFER_BEGIN | SPI_XFER_END) != 0) {
+		printf("Error during SPI transaction\n");
+		rcode = 1;
+	}
+
+	bitlen = 24;
+	/* Clock out response so that we are synced */
+	if(spi_xfer(slave, bitlen, dout, din, SPI_XFER_BEGIN | SPI_XFER_END) != 0) {
+		printf("Error during SPI transaction\n");
+		rcode = 1;
+	}
+
+	spi_release_bus(slave);
+	spi_free_slave(slave);
+
+	return rcode;
+}
+#endif /* CONFIG_PING_MX4 */
+
 #define GENERATE_FUSE_DEV_INFO 0
 static TrdxBootDevice board_get_current_bootdev(void)
 {
 	unsigned reg;
-#if GENERATE_FUSE_DEV_INFO	
+#if GENERATE_FUSE_DEV_INFO
 	unsigned reg1 = 0;
 	unsigned reg2;
 #endif /* GENERATE_FUSE_DEV_INFO */
@@ -548,6 +590,11 @@ int board_late_init(void)
 	}
 #endif /* CONFIG_CMD_NAND */
 
+#ifdef CONFIG_PING_MX4
+		if (ping_mx4_pic())
+			printf("Failed to ping mx4 pic\n");
+#endif /* CONFIG_PING_MX4 */
+
 	return 0;
 }
 #endif /* BOARD_LATE_INIT */
@@ -593,7 +640,7 @@ static void board_voltage_init(void)
 	i2c_set_bus_num(0);		/* PMU is on bus 0 */
 
 	//switch v-core to 1.2V
-	data_buffer[0] = VDD_CORE_NOMINAL_T30; 
+	data_buffer[0] = VDD_CORE_NOMINAL_T30;
 	reg = PMU_CORE_VOLTAGE_DVFS_REG;
 	for (i = 0; i < MAX_I2C_RETRY; ++i) {
 		if (!i2c_write(PMU_CORE_I2C_ADDRESS, reg, 1, data_buffer, 1))
@@ -771,7 +818,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 #ifdef CONFIG_HW_WATCHDOG
 /*
- * kick watchdog in PMU 
+ * kick watchdog in PMU
  *
  */
 extern void hw_watchdog_reset(void)
