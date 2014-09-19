@@ -189,6 +189,7 @@ struct anadig_reg {
 #define CCM_REG_CTRL_MASK			0xffffffff
 #define CCM_CCGR0_UART0_CTRL_MASK               (0x3 << 14)
 #define CCM_CCGR0_UART1_CTRL_MASK		(0x3 << 16)
+#define CCM_CCGR0_DSPI0_CTRL_MASK		(0x3 << 24)
 #define CCM_CCGR1_PIT_CTRL_MASK			(0x3 << 14)
 #define CCM_CCGR1_WDOGA5_CTRL_MASK		(0x3 << 28)
 #define CCM_CCGR2_QSPI0_CTRL_MASK		(0x3 << 8)
