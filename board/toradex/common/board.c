@@ -240,6 +240,7 @@ static int ping_mx4_pic(void)
 	unsigned int bus = 0, cs = 0, mode = SPI_MODE_1;
 	int	bitlen = 56;
 	int rcode = 0;
+	char *empty = 0;
 
 	uchar dout[] = { 0x02, 0x95, 0x00, 0x00, 0x00, 0x00, 0x00 };
 	uchar din[MX4_MAX_SPI_BYTES];
@@ -255,10 +256,14 @@ static int ping_mx4_pic(void)
 		printf("Error during SPI transaction\n");
 		rcode = 1;
 	}
+	spi_release_bus(slave);
+
+	udelay(1000*10);
 
 	bitlen = 24;
 	/* Clock out response so that we are synced */
-	if(spi_xfer(slave, bitlen, dout, din, SPI_XFER_BEGIN | SPI_XFER_END) != 0) {
+	spi_claim_bus(slave);
+	if(spi_xfer(slave, bitlen, empty, din, SPI_XFER_BEGIN | SPI_XFER_END) != 0) {
 		printf("Error during SPI transaction\n");
 		rcode = 1;
 	}
