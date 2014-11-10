@@ -51,6 +51,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
 	struct spi_slave *slave;
+	struct spi_tegra *spi = (struct spi_tegra *)TEGRA_SPI_BASE;
+	u32 reg;
 
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
@@ -62,9 +64,21 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	slave->bus = bus;
 	slave->cs = cs;
 
+	reg = readl(&spi->command);
+	reg &= ~SPI_CMD_IDLE_SCLK_MASK & ~SPI_CMD_CK_SDA;
+	if (mode & SPI_CPHA)
+		reg |= SPI_CMD_CK_SDA;
+
+	if (mode & SPI_CPOL)
+		reg |= SPI_CMD_IDLE_SCLK_DRIVE_HIGH;
+	else
+		reg |= SPI_CMD_IDLE_SCLK_DRIVE_LOW;
+
+	writel(reg, &spi->command);
+
 	/*
-	 * Currently, Tegra SPI uses mode 0 & a 48MHz clock.
-	 * Use 'mode' and 'maz_hz' to change that here, if needed.
+	 * Currently, Tegra SPI uses a 48MHz clock.
+	 * Use max_hz' to change that here, if needed.
 	 */
 
 	return slave;
@@ -115,7 +129,7 @@ void spi_init(void)
 
 #ifdef CONFIG_USE_SLINK /* MX4 */
 	/* Set pingroup SLXA/C/D/K to CS4 pins*/
-	
+
 	pinmux_set_func(PINGRP_SLXA, PMUX_FUNC_SPI4);
 	pinmux_set_func(PINGRP_SLXC, PMUX_FUNC_SPI4);
 	pinmux_set_func(PINGRP_SLXD, PMUX_FUNC_SPI4);
@@ -221,6 +235,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	writel((reg |= (SPI_CMD_TXEN | SPI_CMD_RXEN)), &spi->command);
 	debug("spi_xfer: COMMAND = %08x\n", readl(&spi->command));
 #endif
+
 	if (flags & SPI_XFER_BEGIN)
 		spi_cs_activate(slave);
 
