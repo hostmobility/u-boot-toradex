@@ -30,6 +30,10 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS	:= $(BOARD).o
 
+ifdef CONFIG_CMD_MX4_PIC
+COBJS	+= cmd_mx4_pic.o
+endif
+
 ifdef CONFIG_AM_SPLASH_PARTITION
 COBJS 	+= am_load_splash.o
 endif
