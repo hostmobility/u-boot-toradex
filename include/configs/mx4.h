@@ -106,7 +106,7 @@
                         " bootm ${loadaddr};" \
                 " fi;" \
         "fi;" \
-        "run usbboot; run ubiboot; run flashboot; run nfsboot;" 
+        "run usbboot; run ubiboot; run flashboot; run nfsboot;"
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\
@@ -141,7 +141,7 @@
 	"sspi 0:0.1 56 02950000000000;" \
 	"sspi 0:0.1 24"	\
 	"echo Booting from UBI NAND...; "				\
-	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"	
+	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"
 
 #define USB_BOOTCMD						\
 	"run setup; "						\
@@ -214,6 +214,7 @@
 #define CONFIG_USE_SLINK        /* SPI to PIC on SPI4_CS0 */
 #define CONFIG_CMD_SPI
 #define CONFIG_PING_MX4 /* Ping co-processor on MX4 via SPI */
+#define CONFIG_CMD_MX4_PIC
 
 /* PMU and EMC support, requires i2c */
 #define CONFIG_TEGRA_PMU
@@ -264,8 +265,8 @@
 #define CONFIG_CMD_IMI
 
 /* Enable ramdisk boot */
-#define CONFIG_INITRD_TAG 1 
-#define CONFIG_SETUP_MEMORY_TAGS 1 
+#define CONFIG_INITRD_TAG 1
+#define CONFIG_SETUP_MEMORY_TAGS 1
 /* Enable ramdisk boot, end */
 
 #endif /* __CONFIG_H */

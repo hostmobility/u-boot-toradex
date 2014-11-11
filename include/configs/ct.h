@@ -239,6 +239,7 @@
 #define CONFIG_USE_SLINK        /* SPI to PIC on SPI4_CS0 */
 #define CONFIG_CMD_SPI
 #define CONFIG_PING_MX4 /* Ping co-processor on MX4 via SPI */
+#define CONFIG_CMD_MX4_PIC
 
 
 /* PMU and EMC support, requires i2c */
