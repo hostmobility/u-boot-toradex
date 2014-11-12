@@ -42,11 +42,85 @@
 #define MX4_CMD_RESET_CAUSE		    0x83
 
 enum {
+	MX4_SYS_FMS_BOOTING = 0,
+    MX4_SYS_FMS_RUNNING,
+    MX4_SYS_FMS_UPDATING,
+    MX4_SYS_FMS_ERROR,
+    MX4_SYS_FMS_RECOVERY_MODE,
+};
+
+enum {
 	MX4_PROT_TYPE,
 	MX4_PROT_CMD,
 	MX4_PROT_DATA_OFFSET,
 	MX4_PROT_CRC_OFFSET = 6,
 };
+
+static const char* mx4_pic_str_reset_cause(int reset_cause)
+{
+	switch(reset_cause) {
+		case MX4_PRC_POWER_ON_RESET:
+		return "Power on reset";
+		break;
+		case MX4_PRC_BROWN_OUT_RESET:
+		return "Brown out reset";
+		break;
+		case MX4_PRC_IDLE:
+		return "Idle reset";
+		break;
+		case MX4_PRC_SLEEP:
+		return "Sleep reset";
+		break;
+		case MX4_PRC_WDTO:
+		return "Watchdog reset";
+		break;
+		case MX4_PRC_SWR:
+		return "Software reset";
+		break;
+		case MX4_PRC_MCLR:
+		return "MCLR reset";
+		break;
+		case MX4_PRC_CONFIG_MISMATCH:
+		return "Config missmatch reset";
+		break;
+		case MX4_PRC_DEEP_SLEEP:
+		return "Deep sleep reset";
+		break;
+		case MX4_PRC_ILLEGAL_OPCODE_RESET:
+		return "Illegal opcode reset";
+		break;
+		case MX4_PRC_TRAP_CONFLICT_RESET:
+		return "Trap conflict reset";
+		break;
+		default:
+		return "Unknown reset cause";
+		break;
+	}
+}
+
+static const char* mx4_pic_str_system_state(uint32_t state)
+{
+	switch(state) {
+		case MX4_SYS_FMS_ERROR:
+			return "Error";
+		break;
+		case MX4_SYS_FMS_BOOTING:
+			return "Booting";
+		break;
+		case MX4_SYS_FMS_RUNNING:
+			return "Running";
+		break;
+		case MX4_SYS_FMS_UPDATING:
+			return "Updating";
+		break;
+		case MX4_SYS_FMS_RECOVERY_MODE:
+			return "Recovery mode";
+		break;
+		default:
+			return "Unknown";
+		break;
+	}
+}
 
 static uchar make8(uint32_t var, uchar offset)
 {
@@ -202,48 +276,6 @@ static int mx4_pic_ping(void)
 	return mx4_spi_write(MX4_CMD_WRITE, MX4_CMD_PING, &data);
 }
 
-static const char* mx4_pic_str_reset_cause(int reset_cause)
-{
-	switch(reset_cause) {
-		case MX4_PRC_POWER_ON_RESET:
-		return "Power on reset";
-		break;
-		case MX4_PRC_BROWN_OUT_RESET:
-		return "Brown out reset";
-		break;
-		case MX4_PRC_IDLE:
-		return "Idle reset";
-		break;
-		case MX4_PRC_SLEEP:
-		return "Sleep reset";
-		break;
-		case MX4_PRC_WDTO:
-		return "Watchdog reset";
-		break;
-		case MX4_PRC_SWR:
-		return "Software reset";
-		break;
-		case MX4_PRC_MCLR:
-		return "MCLR reset";
-		break;
-		case MX4_PRC_CONFIG_MISMATCH:
-		return "Config missmatch reset";
-		break;
-		case MX4_PRC_DEEP_SLEEP:
-		return "Deep sleep reset";
-		break;
-		case MX4_PRC_ILLEGAL_OPCODE_RESET:
-		return "Illegal opcode reset";
-		break;
-		case MX4_PRC_TRAP_CONFLICT_RESET:
-		return "Trap conflict reset";
-		break;
-		default:
-		return "Unknown reset cause";
-		break;
-	}
-}
-
 static int mx4_pic_is_hw_reset(void)
 {
 	uint32_t reset_cause = 0;
@@ -316,7 +348,7 @@ static int do_mx4_pic(cmd_tbl_t *cmdtp, int flag, int argc,
 		}
 
 		uint32_t state = simple_strtoul(argv[2], NULL, 10);
-		printf("System state: %d\n", state);
+		printf("System state: %s\n", mx4_pic_str_system_state(state));
 
 		return mx4_pic_set_system_state(state);
 	}
