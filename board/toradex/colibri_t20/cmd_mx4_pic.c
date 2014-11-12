@@ -20,17 +20,17 @@
 
 #define MX4_REG_BIT(bit)                (1 << (bit))
 
-#define PRC_POWER_ON_RESET              MX4_REG_BIT(0)
-#define PRC_BROWN_OUT_RESET             MX4_REG_BIT(1)
-#define PRC_IDLE                        MX4_REG_BIT(2)
-#define PRC_SLEEP                       MX4_REG_BIT(3)
-#define PRC_WDTO                        MX4_REG_BIT(4)
-#define PRC_SWR                         MX4_REG_BIT(5)
-#define PRC_MCLR                        MX4_REG_BIT(6)
-#define PRC_CONFIG_MISMATCH             MX4_REG_BIT(7)
-#define PRC_DEEP_SLEEP                  MX4_REG_BIT(8)
-#define PRC_ILLEGAL_OPCODE_RESET        MX4_REG_BIT(9)
-#define PRC_TRAP_CONFLICT_RESET         MX4_REG_BIT(10)
+#define MX4_PRC_POWER_ON_RESET              MX4_REG_BIT(0)
+#define MX4_PRC_BROWN_OUT_RESET             MX4_REG_BIT(1)
+#define MX4_PRC_IDLE                        MX4_REG_BIT(2)
+#define MX4_PRC_SLEEP                       MX4_REG_BIT(3)
+#define MX4_PRC_WDTO                        MX4_REG_BIT(4)
+#define MX4_PRC_SWR                         MX4_REG_BIT(5)
+#define MX4_PRC_MCLR                        MX4_REG_BIT(6)
+#define MX4_PRC_CONFIG_MISMATCH             MX4_REG_BIT(7)
+#define MX4_PRC_DEEP_SLEEP                  MX4_REG_BIT(8)
+#define MX4_PRC_ILLEGAL_OPCODE_RESET        MX4_REG_BIT(9)
+#define MX4_PRC_TRAP_CONFLICT_RESET         MX4_REG_BIT(10)
 
 #define MX4_MAX_SPI_BYTES 8
 
@@ -42,10 +42,10 @@
 #define MX4_CMD_RESET_CAUSE		    0x83
 
 enum {
-	PROT_TYPE,
-	PROT_CMD,
-	PROT_DATA_OFFSET,
-	PROT_CRC_OFFSET = 6,
+	MX4_PROT_TYPE,
+	MX4_PROT_CMD,
+	MX4_PROT_DATA_OFFSET,
+	MX4_PROT_CRC_OFFSET = 6,
 };
 
 static uchar make8(uint32_t var, uchar offset)
@@ -125,19 +125,19 @@ static int mx4_spi_write(uchar type, uchar cmd, uint32_t *data)
 	if (!data)
 		return 1;
 
-	dout[PROT_TYPE] = type;
-	dout[PROT_CMD] = cmd;
+	dout[MX4_PROT_TYPE] = type;
+	dout[MX4_PROT_CMD] = cmd;
 
 	if (type == MX4_CMD_WRITE) {
 		dout_bitlen = 56;
 		din_bitlen = 24;
 
-		dout[PROT_DATA_OFFSET] = make8(*data, 0);
-		dout[PROT_DATA_OFFSET + 1] = make8(*data, 1);
-		dout[PROT_DATA_OFFSET + 2] = make8(*data, 2);
-		dout[PROT_DATA_OFFSET + 3] = make8(*data, 3);
+		dout[MX4_PROT_DATA_OFFSET] = make8(*data, 0);
+		dout[MX4_PROT_DATA_OFFSET + 1] = make8(*data, 1);
+		dout[MX4_PROT_DATA_OFFSET + 2] = make8(*data, 2);
+		dout[MX4_PROT_DATA_OFFSET + 3] = make8(*data, 3);
 
-		dout[PROT_CRC_OFFSET] = mx4_checksum_accumulate(dout + PROT_DATA_OFFSET, 4);
+		dout[MX4_PROT_CRC_OFFSET] = mx4_checksum_accumulate(dout + MX4_PROT_DATA_OFFSET, 4);
 	} else if(type == MX4_CMD_READ) {
 		dout_bitlen = 16;
 		din_bitlen = 64;
@@ -205,37 +205,37 @@ static int mx4_pic_ping(void)
 static const char* mx4_pic_str_reset_cause(int reset_cause)
 {
 	switch(reset_cause) {
-		case PRC_POWER_ON_RESET:
+		case MX4_PRC_POWER_ON_RESET:
 		return "Power on reset";
 		break;
-		case PRC_BROWN_OUT_RESET:
+		case MX4_PRC_BROWN_OUT_RESET:
 		return "Brown out reset";
 		break;
-		case PRC_IDLE:
+		case MX4_PRC_IDLE:
 		return "Idle reset";
 		break;
-		case PRC_SLEEP:
+		case MX4_PRC_SLEEP:
 		return "Sleep reset";
 		break;
-		case PRC_WDTO:
+		case MX4_PRC_WDTO:
 		return "Watchdog reset";
 		break;
-		case PRC_SWR:
+		case MX4_PRC_SWR:
 		return "Software reset";
 		break;
-		case PRC_MCLR:
+		case MX4_PRC_MCLR:
 		return "MCLR reset";
 		break;
-		case PRC_CONFIG_MISMATCH:
+		case MX4_PRC_CONFIG_MISMATCH:
 		return "Config missmatch reset";
 		break;
-		case PRC_DEEP_SLEEP:
+		case MX4_PRC_DEEP_SLEEP:
 		return "Deep sleep reset";
 		break;
-		case PRC_ILLEGAL_OPCODE_RESET:
+		case MX4_PRC_ILLEGAL_OPCODE_RESET:
 		return "Illegal opcode reset";
 		break;
-		case PRC_TRAP_CONFLICT_RESET:
+		case MX4_PRC_TRAP_CONFLICT_RESET:
 		return "Trap conflict reset";
 		break;
 		default:
@@ -254,7 +254,7 @@ static int mx4_pic_is_hw_reset(void)
 	printf("PIC reset cause: %s\n", mx4_pic_str_reset_cause(reset_cause));
 
 	/* External reset button */
-	if (reset_cause & PRC_MCLR) {
+	if (reset_cause & MX4_PRC_MCLR) {
 		printf("Hardware reset detected.\n");
 		return 0;
 	}
@@ -310,9 +310,6 @@ static int do_mx4_pic(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	if (strncmp(argv[1], "set_state", 9) == 0) {
-
-		printf("Set state: %d\n",argc);
-		printf("%s\n", argv[2]);
 		if (argc < 3) {
 			printf("Usage:\n%s\n", cmdtp->usage);
 			return 1;
