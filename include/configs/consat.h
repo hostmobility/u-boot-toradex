@@ -95,7 +95,7 @@
 #undef CONFIG_LINUXCONSOLE	/* dynamically adjusted */
 
 /* Note! HUSH scripting needs to be enabled for bootcommand/autoscripting */
-#define DEFUALT_BOOTCOMMAND \
+#define DEFAULT_BOOTCOMMAND \
     "if run probe_usb; then " \
 	    "if source ${loadaddr}; then " \
 	    	"exit; " \
@@ -132,17 +132,17 @@
 	"echo Booting from UBI NAND...; "				\
 	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"
 
-#define PROBE_USB_FOR_HMUPDATE
+#define PROBE_USB_FOR_HMUPDATE \
 	"if mx4_pic is_extr; " \
 	"then usb start && fatls usb 0:1 && " \
 	"mx4_pic set_state 2 && fatload usb 0:1 ${loadaddr} ${updatefilename}; fi "
 
-#define PROBE_UBI_FOR_HMUPDATE
+#define PROBE_UBI_FOR_HMUPDATE \
 	"if ${firmware_update} -eq true; then " \
 	"ubi part USR; ubifsmount rootfs; "\
 	"ubifsload ${loadaddr} /boot/${updatefilename} && mx4_pic set_state 2; fi "
 
-#define PROBE_USB_FOR_RAMDISK
+#define PROBE_USB_FOR_RAMDISK \
 	"if mx4_pic is_extr; then " \
 	"usb start && fatload usb 0:1 ${loadaddr} ${kernelfilename} " \
 	"&& fatload usb 0:1 ${ramdisk_loadaddr} ${ramdiskfilename} " \
