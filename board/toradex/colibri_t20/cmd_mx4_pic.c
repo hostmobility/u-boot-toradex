@@ -265,6 +265,8 @@ static int mx4_pic_is_hw_reset(void)
 static int mx4_pic_software_restart(void)
 {
 	uint32_t data = 0;
+	uint8_t retry_cnt = 10;
+	int ret = 0;
 
 	/* SW reset command does not generate response */
 	mx4_spi_write(MX4_CMD_WRITE, MX4_CMD_SW_RESET, &data);
@@ -274,7 +276,12 @@ static int mx4_pic_software_restart(void)
 	*/
 	udelay(1000*100);
 
-	return mx4_pic_ping();
+	while ((ret = mx4_pic_ping()) && retry_cnt) {
+		udelay(1000*100);
+		retry_cnt--;
+	}
+
+	return ret;
 }
 
 static int mx4_pic_set_system_state(uint32_t state)
