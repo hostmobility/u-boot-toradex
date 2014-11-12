@@ -96,14 +96,14 @@
 
 /* Note! HUSH scripting needs to be enabled for bootcommand/autoscripting */
 #define DEFAULT_BOOTCOMMAND \
-    "if run probe_usb; then " \
+    "if run probe_usb || run probe_ubi; then " \
 	    "if source ${loadaddr}; then " \
 	    	"exit; " \
 	    "else " \
 	    	"bootm ${loadaddr}; " \
 	    "fi; " \
     "fi; " \
-    "run probe_ramdisk; run ctubiboot;"
+    "run probe_ramdisk; run ctubiboot; run ubiboot; run flashboot;"
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\

@@ -104,7 +104,7 @@
 	    	"bootm ${loadaddr}; " \
 	    "fi; " \
     "fi; " \
-    "run ubiboot; run flashboot;"
+    "run probe_ramdisk; run ctubiboot; run ubiboot; run flashboot;"
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\
