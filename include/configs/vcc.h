@@ -96,16 +96,15 @@
 #undef CONFIG_LINUXCONSOLE	/* dynamically adjusted */
 
 /* Note! HUSH scripting needs to be enabled for bootcommand/autoscripting */
-#define DEFAULT_BOOTCOMMAND					\
-	"usb start; ubi part USR; ubifsmount rootfs; " \
-        "if fatload usb 0:1 ${loadaddr} ${updatefilename} || ubifsload ${loadaddr} /boot/${updatefilename}; then" \
-                " if source ${loadaddr}; then" \
-                        " exit;" \
-                " else" \
-                        " bootm ${loadaddr};" \
-                " fi;" \
-        "fi;" \
-        "run usbboot; run ubiboot; run flashboot; run nfsboot;"
+#define DEFAULT_BOOTCOMMAND \
+    "if run probe_usb || run probe_ubi; then " \
+	    "if source ${loadaddr}; then " \
+	    	"exit; " \
+	    "else " \
+	    	"bootm ${loadaddr}; " \
+	    "fi; " \
+    "fi; " \
+    "run ubiboot; run flashboot;"
 
 #define FLASH_BOOTCMD						\
 	"run setup; "						\
@@ -113,52 +112,39 @@
 	"echo Booting from NAND...; "				\
 	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"
 
-#define MMC_BOOTCMD						\
-	"echo Loading RAM disk and kernel from MMC/SD card...; "\
-	"mmc init && "						\
-	"fatload mmc 0:1 0xC08000 rootfs-ext2.img.gz && "	\
-	"fatload mmc 0:1 ${loadaddr} uImage;"			\
-	"run ramboot"
-
-#define NFS_BOOTCMD						\
-	"run setup; "						\
-	"setenv bootargs ${defargs} ${nfsargs} ${mtdparts} ${setupargs}; "	\
-	"echo Booting from NFS...; "				\
-	"usb start; "						\
-	"dhcp; "						\
-	"bootm"
-
 #define RAM_BOOTCMD						\
-	"run setup; "						\
-	"setenv bootargs ${defargs} ${ramargs} ${mtdparts} ${setupargs}; "	\
-	"echo Booting from RAM...; "				\
-	"bootm"
+	"run setup; " \
+	"setenv bootargs ${defargs} ${ramargs} ${mtdparts} ${setupargs}; " \
+	"echo Booting from RAM...; "\
+	"bootm ${loadaddr} ${ramdisk_loadaddr}; " \
 
 #define UBI_BOOTCMD						\
+	"mx4_pic restart; "					\
 	"run setup; "						\
 	"setenv bootargs ${defargs} ${ubiargs} ${mtdparts} ${setupargs}; "	\
 	"echo Booting from UBI NAND...; "				\
 	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"
 
-#define USB_BOOTCMD						\
-	"run setup; "						\
-	"setenv bootargs ${defargs} ${usbargs} ${mtdparts} ${setupargs}; "	\
-	"usb start; "						\
-	"echo Using kernel and root filesystem on EXT2 formatted USB stick...; "	\
-	"ext2load usb 0:1 ${loadaddr} /boot/uImage && bootm "
+#define PROBE_USB_FOR_HMUPDATE \
+	"if mx4_pic is_extr; then " \
+	"usb start && fatls usb 0:1 && " \
+	"mx4_pic set_state 2 && fatload usb 0:1 ${loadaddr} ${updatefilename}; fi "
 
-#define SD_BOOTCMD					\
-	"run setup; "						\
-	"setenv bootargs ${defargs} ${sdargs} ${mtdparts} ${setupargs}; " \
-	"echo Booting from MMC/SD card...; " \
-	"mmc read 0 ${loadaddr} 0x2a00 0x4000; " \
-	"bootm"
+#define PROBE_UBI_FOR_HMUPDATE \
+	"if ${firmware_update} -eq true; then " \
+	"ubi part USR; ubifsmount rootfs; "\
+	"ubifsload ${loadaddr} /boot/${updatefilename} && mx4_pic set_state 2; fi "
+
+#define PROBE_USB_FOR_RAMDISK \
+	"if mx4_pic is_extr; then " \
+	"usb start && fatload usb 0:1 ${loadaddr} ${kernelfilename} " \
+	"&& fatload usb 0:1 ${ramdisk_loadaddr} ${ramdiskfilename} " \
+	"&& run ramboot; fi "
 
 #undef CONFIG_BOOTARGS
 #undef CONFIG_BOOTCOMMAND
 #undef CONFIG_DIRECT_BOOTARGS
 #define CONFIG_BOOTCOMMAND	DEFAULT_BOOTCOMMAND
-#define CONFIG_NFSBOOTCOMMAND	NFS_BOOTCMD
 #define CONFIG_RAMBOOTCOMMAND	RAM_BOOTCMD
 //moved from disk/part_efi.h to here, give the block where the GP1 partition starts
 //compare with sdargs below
@@ -170,24 +156,25 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_STD_DEVICES_SETTINGS \
-	"defargs=video=tegrafb vmalloc=128M usb_high_speed=1 quiet fbcon=map:1 consoleblank=0\0" \
+	"firmware_update=false\0" \
+	"probe_usb=" PROBE_USB_FOR_HMUPDATE "\0" \
+	"probe_ubi=" PROBE_UBI_FOR_HMUPDATE "\0" \
+	"probe_ramdisk=" PROBE_USB_FOR_RAMDISK "\0" \
+	"updatefilename=hmupdate.img\0" \
+	"kernelfilename=uImage\0" \
+	"ramdiskfilename=uRamdisk\0" \
+	"PRODUCT=VCC\0" \
+	"ramdisk_loadaddr=1000000\0" \
+	"splashimage=0x408000\0" \
 	"flashargs=ip=off root=/dev/mtdblock0 rw rootfstype=yaffs2\0" \
 	"flashboot=" FLASH_BOOTCMD "\0" \
-	"mmcboot=" MMC_BOOTCMD "\0" \
-	"memargs=mem=498M@0M fbmem=12M@498M nvmem=2M@510M\0" \
-	"nfsargs=ip=:::::eth0:on root=/dev/nfs rw netdevwait\0" \
-	"ramargs=root=/dev/ram0 rw\0" \
-    "ramboot=run setup; setenv bootargs ${defargs} ${ramargs} ${mtdparts} ${setupargs}; echo Booting from RAM...; bootm ${loadaddr} A180000\0" \
-    "usbramdisk=usb start;fatload usb 0:1 A180000 uRamdisk; fatload usb 0:1 ${loadaddr} uImage;run ramboot\0" \
-	"sdargs=root=/dev/mmcblk0p1 ip=:::::eth0:off rw,noatime rootfstype=ext3 rootwait gpt gpt_sector=18945\0" \
-	"sdboot=" SD_BOOTCMD "\0" \
-	"setup=setenv setupargs asix_mac=${ethaddr} asix_mac2=${ethaddr2} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs}\0" \
-	"ubiargs=ubi.mtd=USR root=ubi0:rootfs rootfstype=ubifs\0" \
 	"ubiboot=" UBI_BOOTCMD "\0" \
-	"PRODUCT=VCC\0" \
-	"updatefilename=hmupdate.img\0" \
-	"usbargs=root=/dev/sda1 ip=:::::eth0:off rw,noatime rootfstype=ext2 rootwait\0" \
-	"usbboot=" USB_BOOTCMD "\0" \
+	"ubiargs=ubi.mtd=USR root=ubi0:rootfs rootfstype=ubifs\0" \
+	"memargs=mem=498M@0M fbmem=12M@498M nvmem=2M@510M\0" \
+	"ramargs=root=/dev/ram0 rw\0" \
+	"defargs=video=tegrafb vmalloc=128M usb_high_speed=1 quiet fbcon=map:1 consoleblank=0\0" \
+	"vidargs=video=tegrafb0:800x480CT-32@60 video=tegrafb1:1920x1080-32@60\0" \
+	"setup=setenv setupargs asix_mac=${ethaddr} asix_mac2=${ethaddr2} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs} ${vidargs}\0" \
 	""
 
 /* Dynamic MTD partition support */
