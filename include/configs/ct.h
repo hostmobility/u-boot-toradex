@@ -177,7 +177,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_STD_DEVICES_SETTINGS \
-	"firmware_update=false; " \
+	"firmware_update=false\0" \
 	"probe_usb=" PROBE_USB_FOR_HMUPDATE "\0" \
 	"probe_ubi=" PROBE_UBI_FOR_HMUPDATE "\0" \
 	"probe_ramdisk=" PROBE_USB_FOR_RAMDISK "\0" \
