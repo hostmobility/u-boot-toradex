@@ -106,12 +106,14 @@
     "run probe_ramdisk; run ctubiboot; run ubiboot; run flashboot;"
 
 #define FLASH_BOOTCMD						\
+    "mx4_pic restart; "		\
 	"run setup; "						\
 	"setenv bootargs ${defargs} ${flashargs} ${mtdparts} ${setupargs}; "	\
 	"echo Booting from NAND...; "				\
 	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"
 
 #define RAM_BOOTCMD						\
+	"mx4_pic restart; "		\
 	"run setup; " \
 	"setenv bootargs ${defargs} ${ramargs} ${mtdparts} ${setupargs}; " \
 	"echo Booting from RAM...; "\
