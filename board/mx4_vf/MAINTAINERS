@@ -1,0 +1,6 @@
+MX4 VF
+M:	Rickard Gustafsson <rickard.gustafsson@hostmobility.com>
+S:	Maintained
+F:	board/mx4_vf/
+F:	include/configs/mx4_vf.h
+F:	configs/mx4_vf_defconfig

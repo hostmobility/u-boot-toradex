@@ -459,6 +459,9 @@ config TARGET_VF610TWR
 config TARGET_COLIBRI_VF
 	bool "Support Colibri VF50/VF61"
 
+config TARGET_MX4_VF
+	bool "Support MX4 Vybrid"
+
 config ZYNQ
 	bool "Xilinx Zynq Platform"
 
@@ -702,5 +705,6 @@ source "board/wandboard/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/xaeniax/Kconfig"
 source "board/zipitz2/Kconfig"
+source "board/mx4_vf/Kconfig"
 
 endmenu
