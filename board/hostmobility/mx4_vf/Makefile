@@ -5,4 +5,4 @@
 #
 
 obj-y	:= mx4_vf.o
-obj-y	+= common/configblock.o
+obj-y	+= ../../toradex/common/configblock.o

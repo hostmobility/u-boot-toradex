@@ -20,7 +20,7 @@
 #include <netdev.h>
 #include <i2c.h>
 
-#include "common/configblock.h"
+#include "../../toradex/common/configblock.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

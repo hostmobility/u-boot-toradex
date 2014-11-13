@@ -6,8 +6,8 @@ config SYS_CPU
 config SYS_BOARD
 	default "mx4_vf"
 
-#config SYS_VENDOR
-	#default "Host Mobility"
+config SYS_VENDOR
+	default "hostmobility"
 
 config SYS_SOC
 	default "vf610"
