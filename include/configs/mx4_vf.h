@@ -1,6 +1,6 @@
 /*
  * Copyright 2014 Host Mobility, AB.
- * 
+ *
  * Configuration settings for the MX4 VF.
  *
  * Based on colibri_vf.h:
@@ -115,6 +115,7 @@
 #define CONFIG_TRDX_CFG_BLOCK_IS_IN_NAND
 #define CONFIG_TRDX_CFG_BLOCK_OFFSET	0x800
 #define CONFIG_TRDX_CFG_BLOCK_SIZE	2048
+#define CONFIG_TRDX_CFG_BLOCK_2ND_ETHADDR
 #define CONFIG_REVISION_TAG
 #define CONFIG_SERIAL_TAG
 
