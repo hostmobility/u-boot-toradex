@@ -94,14 +94,15 @@ void get_board_serial(struct tag_serialnr *serialnr)
 #ifdef CONFIG_TRDX_CFG_BLOCK
 int read_trdx_cfg_block(void)
 {
+	int err;
 	size_t size = CONFIG_TRDX_CFG_BLOCK_SIZE;
 #ifdef CONFIG_TRDX_CFG_BLOCK_IS_IN_MMC
 	struct mmc *mmc;
 	int dev = CONFIG_TRDX_CFG_BLOCK_DEV;
+	int offset = CONFIG_TRDX_CFG_BLOCK_OFFSET;
 	uint part = CONFIG_TRDX_CFG_BLOCK_PART;
 	uint blk_start;
 #endif /* CONFIG_TRDX_CFG_BLOCK_IS_IN_MMC */
-	int offset = CONFIG_TRDX_CFG_BLOCK_OFFSET;
 	unsigned char *cfg_block_ethaddr;
 	unsigned char toradex_oui[3] = { 0x00, 0x14, 0x2d };
 	unsigned char ethaddr[6];
@@ -110,7 +111,7 @@ int read_trdx_cfg_block(void)
 	config_block = malloc(size);
 	if (!config_block) {
 		printf("Not enough malloc space available!\n");
-		return -1;
+		return -ENOMEM;
 	}
 
 	/* Clear it */
@@ -121,12 +122,14 @@ int read_trdx_cfg_block(void)
 	mmc = find_mmc_device(dev);
 	if (!mmc) {
 		puts("No MMC card found\n");
-		return 1;
+		err = -ENODEV; 
+		goto err;
 	}
 	if (part != mmc->part_num) {
 		if (mmc_switch_part(dev, part)) {
 			puts("MMC partition switch failed\n");
-			return 1;
+			err = -ENODEV; 
+			goto err;
 		}
 	}
 	if (offset < 0)
@@ -136,7 +139,8 @@ int read_trdx_cfg_block(void)
 	/* Just reading one 512 byte block */
 	if (mmc->block_dev.block_read(dev, blk_start, 1,
 				      (unsigned char *)config_block) != 1) {
-		return 1;
+		err = -EIO; 
+		goto err;
 	}
 
 	/* Switch back to regular eMMC user partition */
@@ -145,15 +149,17 @@ int read_trdx_cfg_block(void)
 #ifdef CONFIG_TRDX_CFG_BLOCK_IS_IN_NAND
 	/* Read production parameter config block from first NAND block */
 	if (nand_read_skip_bad(&nand_info[0], CONFIG_TRDX_CFG_BLOCK_OFFSET,
-			       &size, NULL, nand_info[0].size, config_block))
-		return 1;
+			       &size, NULL, nand_info[0].size, config_block)) {
+		err = -EIO; 
+		goto err;
+	}
 #endif
 
 	/* Check validity */
 	cfg_block_ethaddr = config_block + 8;
 	if (memcmp(cfg_block_ethaddr, toradex_oui, 3)) {
-		memset((void *)config_block, 0, size);
-		return 2;
+		err = -EINVAL;
+		goto err;
 	}
 
 	/*
@@ -163,6 +169,21 @@ int read_trdx_cfg_block(void)
 	if (!eth_getenv_enetaddr("ethaddr", ethaddr))
 		eth_setenv_enetaddr("ethaddr", cfg_block_ethaddr);
 
+#ifdef CONFIG_TRDX_CFG_BLOCK_2ND_ETHADDR
+	if (!eth_getenv_enetaddr("eth1addr", ethaddr)) {
+		/*
+		 * Secondary MAC address is allocated from a block
+		 * 0x100000 higher then the first MAC address
+		 */
+		cfg_block_ethaddr[3] += 0x10;
+		eth_setenv_enetaddr("eth1addr", cfg_block_ethaddr);
+	}
+#endif
+
 	return 0;
+err:
+	free(config_block);
+	config_block = NULL;
+	return err;
 }
 #endif /* CONFIG_TRDX_CFG_BLOCK */

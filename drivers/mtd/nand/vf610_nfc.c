@@ -691,6 +691,8 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 		chip->ecc.bytes = 45;
 		chip->ecc.size = PAGE_2K;
 		chip->ecc.strength = 24;
+		/* Disable subpage writes as we do not provide ecc->hwctl */
+		chip->options |= NAND_NO_SUBPAGE_WRITE;
 
 		/* set ECC mode to 45 bytes OOB with 24 bits correction */
 		vf610_nfc_set_field(mtd, NFC_FLASH_CONFIG,

@@ -17,6 +17,10 @@
 
 #define CONFIG_VF610
 
+#define CONFIG_SYS_THUMB_BUILD
+#define CONFIG_USE_ARCH_MEMCPY
+#define CONFIG_USE_ARCH_MEMSET
+
 #define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_DISPLAY_CPUINFO
@@ -53,7 +57,6 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_NAND_VF610_NFC
 #define CONFIG_SYS_NAND_SELF_INIT
-#define CONFIG_USE_ARCH_MEMCPY
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
 
@@ -115,6 +118,7 @@
 #define CONFIG_TRDX_CFG_BLOCK_IS_IN_NAND
 #define CONFIG_TRDX_CFG_BLOCK_OFFSET	0x800
 #define CONFIG_TRDX_CFG_BLOCK_SIZE	2048
+#define CONFIG_TRDX_CFG_BLOCK_2ND_ETHADDR
 #define CONFIG_REVISION_TAG
 #define CONFIG_SERIAL_TAG
 
@@ -159,6 +163,8 @@
 
 #define CONFIG_BOOTCOMMAND "run ubiboot; run sdboot; run nfsboot"
 
+#define DFU_ALT_NAND_INFO	"vf-bcb part 0,1;u-boot part 0,2;ubi part 0,4"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"kernel_addr_r=0x82000000\0" \
 	"fdt_addr_r=0x84000000\0" \
@@ -173,6 +179,7 @@
 	"setupdate=fatload mmc 0:1 ${loadaddr} flash_mmc.img && " \
 		"source ${loadaddr}\0" \
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
 	SD_BOOTCMD \
 	NFS_BOOTCMD \
 	UBI_BOOTCMD
@@ -236,5 +243,38 @@
 #define CONFIG_CMD_BOOTZ
 
 #define CONFIG_SYS_NO_FLASH
+
+#define CONFIG_SYS_CACHELINE_SIZE 32
+
+/* USB Host support */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_VF
+#define CONFIG_USB_MAX_CONTROLLER_COUNT		2
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+
+/* USB Client Support */
+#define CONFIG_USB_GADGET
+#define CONFIG_CI_UDC
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW 2
+#define CONFIG_G_DNL_MANUFACTURER	"Freescale"
+#define CONFIG_G_DNL_PRODUCT_NUM	0x006A
+#define CONFIG_G_DNL_VENDOR_NUM		0x15A2
+
+/* USB DFU */
+#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_CMD_DFU
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_NAND
+#define CONFIG_DFU_MMC
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE	(1024*1024)
+
+/* USB Storage */
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_GADGET_MASS_STORAGE
+#define CONFIG_CMD_USB_MASS_STORAGE
+
+#define CONFIG_SYS_THUMB_BUILD
 
 #endif /* __CONFIG_H */

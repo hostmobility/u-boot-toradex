@@ -38,6 +38,7 @@ obj-$(CONFIG_USB_EHCI_SPEAR) += ehci-spear.o
 obj-$(CONFIG_USB_EHCI_SUNXI) += ehci-sunxi.o
 obj-$(CONFIG_USB_EHCI_TEGRA) += ehci-tegra.o
 obj-$(CONFIG_USB_EHCI_VCT) += ehci-vct.o
+obj-$(CONFIG_USB_EHCI_VF) += ehci-vf.o
 obj-$(CONFIG_USB_EHCI_RMOBILE) += ehci-rmobile.o
 obj-$(CONFIG_USB_EHCI_ZYNQ) += ehci-zynq.o
 
