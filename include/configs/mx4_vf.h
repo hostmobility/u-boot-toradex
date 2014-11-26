@@ -83,6 +83,7 @@
 /* DSPI Configs */
 #define CONFIG_FSL_DSPI
 #ifdef CONFIG_FSL_DSPI
+#define CONFIG_PING_MX4
 #define CONFIG_CMD_SPI
 #define MMAP_DSPI  SPI1_BASE_ADDR
 #define CONFIG_SYS_FSL_DSPI_LE
