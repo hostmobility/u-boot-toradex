@@ -43,6 +43,51 @@ int dram_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_PING_MX4
+#define MX4_MAX_SPI_BYTES 8
+
+static int ping_mx4_pic(void)
+{
+	struct spi_slave *slave;
+
+	unsigned int bus = 0, cs = 0, mode = SPI_MODE_1;
+	int	bitlen = 56;
+	int rcode = 0;
+	char *empty = 0;
+
+	uchar dout[] = { 0x02, 0x95, 0x00, 0x00, 0x00, 0x00, 0x00 };
+	uchar din[MX4_MAX_SPI_BYTES];
+
+	slave = spi_setup_slave(bus, cs, 1000000, mode);
+	if (!slave) {
+		printf("Invalid device %d:%d\n", bus, cs);
+		return 1;
+	}
+
+	spi_claim_bus(slave);
+	if(spi_xfer(slave, bitlen, dout, din, SPI_XFER_BEGIN | SPI_XFER_END) != 0) {
+		printf("Error during SPI transaction\n");
+		rcode = 1;
+	}
+	spi_release_bus(slave);
+
+	udelay(1000*10);
+
+	bitlen = 24;
+	/* Clock out response so that we are synced */
+	spi_claim_bus(slave);
+	if(spi_xfer(slave, bitlen, empty, din, SPI_XFER_BEGIN | SPI_XFER_END) != 0) {
+		printf("Error during SPI transaction\n");
+		rcode = 1;
+	}
+
+	spi_release_bus(slave);
+	spi_free_slave(slave);
+
+	return rcode;
+}
+#endif /* CONFIG_PING_MX4 */
+
 static void setup_iomux_uart(void)
 {
 	static const iomux_v3_cfg_t uart_pads[] = {
@@ -87,9 +132,9 @@ static void setup_iomux_dspi(void)
 {
     static const iomux_v3_cfg_t dspi0_pads[] = {
         VF610_PAD_PTD5__DSPI1_CS0,
-        VF610_PAD_PTD6__DSPI1_SIN,	
-        VF610_PAD_PTD7__DSPI1_SOUT,	
-        VF610_PAD_PTD8__DSPI1_SCK,	
+        VF610_PAD_PTD6__DSPI1_SIN,
+        VF610_PAD_PTD7__DSPI1_SOUT,
+        VF610_PAD_PTD8__DSPI1_SCK,
     };
 
     imx_iomux_v3_setup_multiple_pads(dspi0_pads, ARRAY_SIZE(dspi0_pads));
@@ -312,6 +357,12 @@ int board_late_init(void)
 	if (read_trdx_cfg_block())
 		printf("Missing Colibri config block\n");
 #endif
+
+#ifdef CONFIG_PING_MX4
+		if (ping_mx4_pic())
+			printf("Failed to ping mx4 pic\n");
+#endif /* CONFIG_PING_MX4 */
+
 
 	return 0;
 }
