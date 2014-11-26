@@ -19,6 +19,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <i2c.h>
+#include <spi.h>
 
 #include "../../toradex/common/configblock.h"
 
