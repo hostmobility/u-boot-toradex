@@ -318,7 +318,11 @@ static int mx4_pic_software_restart(void)
 
 static int mx4_pic_set_system_state(uint32_t state)
 {
-	return mx4_spi_write(MX4_CMD_WRITE, MX4_CMD_PING, &state);
+	mx4_spi_write(MX4_CMD_WRITE, MX4_CMD_PING, &state);
+
+	/* Always return success, Pic might not have application and we do not
+	want to signal fail on led blink behaviour. */
+	return 0;
 }
 
 static int do_mx4_pic(cmd_tbl_t *cmdtp, int flag, int argc,
