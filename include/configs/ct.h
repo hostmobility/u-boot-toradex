@@ -32,6 +32,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_STD_DEVICES_SETTINGS \
 	CONFIG_COMMON_EXTRA_ENV_SETTINGS \
+	"PRODUCT=CONSAT\0" \
 	"vidargs=video=tegrafb0:800x480CT-32@60 video=tegrafb1:1920x1080-32@60\0" \
 	"setup=setenv setupargs asix_mac=${ethaddr} asix_mac2=${ethaddr2} no_console_suspend=1 console=tty1 console=ttyS0,${baudrate}n8 debug_uartport=lsport,0 ${memargs} ${vidargs}\0" \
 	""
