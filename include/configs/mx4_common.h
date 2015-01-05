@@ -61,6 +61,14 @@
 					"stdout=serial\0" \
 					"stderr=serial\0"
 
+#define CONFIG_AUTOBOOT_KEYED
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"\nMX4 - booting... stop with ENTER\n"
+#define CONFIG_AUTOBOOT_DELAY_STR	"\r"
+#define CONFIG_AUTOBOOT_DELAY_STR2	"\n"
+#define CONFIG_RESET_TO_RETRY
+#define CONFIG_BOOT_RETRY_TIME	30
+
 #define CONFIG_SYS_BOARD_ODMDATA	0x300d8011 /* lp1, 1GB */
 
 #define CONFIG_REVISION_TAG		1
