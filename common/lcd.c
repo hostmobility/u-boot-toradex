@@ -1058,10 +1058,11 @@ static void *lcd_logo (void)
 #ifdef CONFIG_VIDEO_BMP_GZIP
 		bmp_image_t *bmp = (bmp_image_t *)addr;
 		unsigned long len;
+		void *bmp_alloc_addr = NULL;
 
 		if (!((bmp->header.signature[0]=='B') &&
 		      (bmp->header.signature[1]=='M'))) {
-			addr = (ulong)gunzip_bmp(addr, &len);
+			addr = (ulong)gunzip_bmp(addr, &len, bmp_alloc_addr);
 		}
 #endif
 

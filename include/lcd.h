@@ -54,7 +54,7 @@ extern void lcd_setcolreg (ushort regno,
 extern void lcd_initcolregs (void);
 
 /* gunzip_bmp used if CONFIG_VIDEO_BMP_GZIP */
-extern struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);
+extern struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp, void **alloc_addr);
 
 /**
  * Set whether we need to flush the dcache when changing the LCD image. This
