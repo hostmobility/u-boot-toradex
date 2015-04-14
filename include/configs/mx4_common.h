@@ -280,4 +280,10 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 /* Enable ramdisk boot, end */
 
+ /*
+ * Size of malloc() pool
+ */
+#undef CONFIG_SYS_MALLOC_LEN
+#define CONFIG_SYS_MALLOC_LEN		(10 << 20)	/* 10MB  */
+
 #endif /* MX4_COMMON */
