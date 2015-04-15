@@ -149,15 +149,26 @@
 	"echo Booting from UBI NAND...; "				\
 	"nboot ${loadaddr} 0 ${lnxoffset} && bootm"
 
+#define LOAD_SPLASH_IMAGE_FROM_USB \
+	"if fatload usb 0:1 ${loadaddr} loading_update_image.bmp.gz; then "	\
+	"bmp display $loadaddr; fi"
+
+#define LOAD_SPLASH_IMAGE_FROM_UBI \
+	"if ubifsload ${loadaddr} /boot/loading_update_image.bmp.gz; then "	\
+	"bmp display $loadaddr; fi"
+
 #define PROBE_USB_FOR_HMUPDATE \
 	"if run is_firmware_update || mx4_pic is_extr; " \
 	"then usb start && fatls usb 0:1 && " \
-	"mx4_pic set_state 2 && fatload usb 0:1 ${loadaddr} ${updatefilename}; fi "
+	"run load_splash_image_from_usb; mx4_pic set_state 2 && "	\
+	"fatload usb 0:1 ${loadaddr} ${updatefilename}; fi "
 
 #define PROBE_UBI_FOR_HMUPDATE \
 	"if ${firmware_update} -eq true; then " \
-	"ubi part USR; ubifsmount rootfs; "\
-	"ubifsload ${loadaddr} /boot/${updatefilename} && mx4_pic set_state 2; fi "
+	"ubi part USR; ubifsmount rootfs; "	\
+	"run load_splash_image_from_ubi; "	\
+	"mx4_pic set_state 2; "	\
+	"ubifsload ${loadaddr} /boot/${updatefilename}fi "
 
 #define PROBE_USB_FOR_RAMDISK \
 	"if mx4_pic is_extr; then " \
@@ -174,6 +185,8 @@
 	"probe_ubi=" PROBE_UBI_FOR_HMUPDATE "\0" \
 	"probe_ramdisk=" PROBE_USB_FOR_RAMDISK "\0" \
 	"is_firmware_update=" IS_FIRMWARE_UPDATE "\0" \
+	"load_splash_image_from_usb=" LOAD_SPLASH_IMAGE_FROM_USB"\0" \
+	"load_splash_image_from_ubi=" LOAD_SPLASH_IMAGE_FROM_UBI"\0" \
 	"ramargs=root=/dev/ram0 rw\0" \
 	"updatefilename=hmupdate.img\0" \
 	"kernelfilename=uImage\0" \
