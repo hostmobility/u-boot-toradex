@@ -38,6 +38,12 @@ endif
 
 all:	$(obj)fw_printenv
 
+# fw_printenv is supposed to run on the target system, which means it should be
+# built with cross tools. Although it may look weird, we only replace "HOSTCC"
+# with "CC" here for the maximum code reuse of scripts/Makefile.host.
+HOSTCC = $(CC)
+
+
 # Some files complain if compiled with -pedantic, use HOSTCFLAGS_NOPED
 $(obj)fw_printenv:	$(HOSTSRCS) $(HEADERS)
 	$(HOSTCC) $(HOSTCFLAGS_NOPED) $(HOSTLDFLAGS) -o $@ $(HOSTSRCS)
