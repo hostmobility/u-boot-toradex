@@ -159,7 +159,7 @@
 
 #define PROBE_USB_FOR_HMUPDATE \
 	"if run is_firmware_update || mx4_pic is_extr; " \
-	"then usb start && fatls usb 0:1 && " \
+	"then sleep 2; usb start && fatls usb 0:1 && " \
 	"run load_splash_image_from_usb; mx4_pic set_state 2 && "	\
 	"fatload usb 0:1 ${loadaddr} ${updatefilename}; fi "
 
