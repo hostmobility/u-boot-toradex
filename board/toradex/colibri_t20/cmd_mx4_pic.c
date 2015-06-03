@@ -338,11 +338,11 @@ static int do_mx4_pic(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	if (strncmp(argv[1], "is_extr", 7) == 0) {
-		return mx4_pic_is_hw_reset();
+		return mx4_pic_is_hw_reset() < 1;
 	}
 
 	if (strncmp(argv[1], "restart", 7) == 0) {
-		return mx4_pic_software_restart() < 1;
+		return mx4_pic_software_restart();
 	}
 
 	if (strncmp(argv[1], "set_state", 9) == 0) {
