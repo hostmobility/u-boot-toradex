@@ -179,6 +179,9 @@
 #define IS_FIRMWARE_UPDATE \
 	"if ${firmware_update} -eq true; then true; fi"
 
+
+/* 	NOTE! Defargs is overriden by hmupdate.img for PRODUCT != CONSAT.
+*/
 #define CONFIG_COMMON_EXTRA_ENV_SETTINGS \
 	"firmware_update=false\0" \
 	"probe_usb=" PROBE_USB_FOR_HMUPDATE "\0" \
