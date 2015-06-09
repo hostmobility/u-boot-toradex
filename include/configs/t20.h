@@ -27,7 +27,9 @@
 
 #include "mx4_common.h"
 
-#define V_PROMPT		"MX4 # "
+#define V_PROMPT		"MX-4 T20 # "
+
+#define MX4_PRODUCT_TYPE "t20"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_STD_DEVICES_SETTINGS \

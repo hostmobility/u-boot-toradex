@@ -28,7 +28,7 @@ $(shell mkdir -p $(obj)../common)
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= $(BOARD).o
+COBJS	:= $(BOARD).o cmd_mx4_product.o
 
 ifdef CONFIG_CMD_MX4_PIC
 COBJS	+= cmd_mx4_pic.o
