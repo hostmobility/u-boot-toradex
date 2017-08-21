@@ -128,7 +128,7 @@ source (ulong addr, const char *fit_uname)
 		}
 
 		data = (ulong *)fit_data;
-		len = (ulong)fit_len;
+		len = -1;
 		break;
 #endif
 	default:
