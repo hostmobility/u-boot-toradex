@@ -1,0 +1,41 @@
+/*
+ * Copyright 2017 Host Mobility AB
+ *
+ * SPDX-License-Identifier:     GPL-2.0+ or X11
+ */
+
+/dts-v1/;
+#include "vf.dtsi"
+
+/ {
+	model = "Toradex Colibri VF61";
+	compatible = "toradex,vf610-colibri_vf61", "toradex,vf610-colibri_vf61", "fsl,vf610";
+
+	chosen {
+		stdout-path = &uart2;
+	};
+};
+
+&dspi1 {
+	status = "okay";
+	bus-num = <1>;
+
+	spi_cmd: sspi@0 {
+		reg = <0>;
+		spi-max-frequency = <50000000>;
+	};
+};
+
+&ehci0 {
+	dr_mode = "host";
+	status = "okay";
+};
+
+&ehci1 {
+	dr_mode = "host";
+	status = "okay";
+};
+
+&uart2 {
+	status = "okay";
+};

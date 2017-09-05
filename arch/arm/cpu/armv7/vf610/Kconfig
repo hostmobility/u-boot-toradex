@@ -14,6 +14,14 @@ config TARGET_COLIBRI_VF
 	bool "Colibri VF50/61"
 	select BOARD_LATE_INIT
 
+config TARGET_MX4_V61
+	bool "MX-4 V61"
+	select BOARD_LATE_INIT
+
+config TARGET_MX4_C61
+	bool "MX-4 C61"
+	select BOARD_LATE_INIT
+
 config TARGET_PCM052
 	bool "PCM-052"
 	select SYS_FSL_ERRATUM_ESDHC135
@@ -32,5 +40,6 @@ config SYS_SOC
 source "board/freescale/vf610twr/Kconfig"
 source "board/phytec/pcm052/Kconfig"
 source "board/toradex/colibri_vf/Kconfig"
+source "board/toradex/mx4_vf/Kconfig"
 
 endif
