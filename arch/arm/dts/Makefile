@@ -279,6 +279,8 @@ dtb-$(CONFIG_MACH_SUN9I) += \
 
 dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-colibri.dtb \
+	vf610-mx4-c61.dtb \
+	vf610-mx4-v61.dtb \
 	vf610-twr.dtb \
 	pcm052.dtb \
 	bk4r1.dtb
