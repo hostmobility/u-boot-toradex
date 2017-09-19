@@ -1,0 +1,13 @@
+MX4_T20
+M:	Mirza Krak <mirza.krak@hostmobility.com>
+S:	Maintained
+F:	board/toradex/mx4_tegra2/
+F:	include/configs/mx4_t20.h
+F:      include/configs/mx4_mil.h
+F:      include/configs/mx4_mil_se.h
+F:      include/configs/mx4_ct.h
+F:	configs/mx4_t20_defconfig
+F:      configs/mx4_mil_defconfig
+F:      configs/mx4_mil_vboot_defconfig
+F:      configs/mx4_ct_defconfig
+F:	arch/arm/dts/tegra20-mx4.dtb

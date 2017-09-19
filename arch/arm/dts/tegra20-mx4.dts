@@ -1,0 +1,107 @@
+/dts-v1/;
+
+#include "tegra20.dtsi"
+
+/ {
+	model = "Toradex Colibri T20 on MX-4 boards";
+	compatible = "hostmobility,mx4, toradex,colibri_t20", "nvidia,tegra20";
+
+	chosen {
+		stdout-path = &uarta;
+	};
+
+	aliases {
+		i2c0 = "/i2c@7000d000";
+		i2c1 = "/i2c@7000c000";
+		i2c2 = "/i2c@7000c400";
+		mmc0 = "/sdhci@c8000600";
+		spi0 = "/spi@7000da00";
+		usb0 = "/usb@c5000000";
+		usb1 = "/usb@c5004000"; /* On-module only, for ASIX */
+		usb2 = "/usb@c5008000";
+	};
+
+	nand-controller@70008000 {
+		nvidia,wp-gpios = <&gpio TEGRA_GPIO(S, 0) GPIO_ACTIVE_HIGH>;
+		nvidia,width = <8>;
+		nvidia,timing = <15 100 25 80 25 10 15 10 100>;
+
+		nand@0 {
+			reg = <0>;
+			compatible = "nand-flash";
+		};
+	};
+
+	/* SPI1: Colibri SSP */
+	spi@7000da00 {
+		status = "okay";
+		spi-max-frequency = <25000000>;
+	};
+
+	/* GEN2_I2C: unused */
+
+	/*
+	 * PWR_I2C: power I2C to PMIC and temperature sensor
+	 */
+	i2c@7000d000 {
+		status = "okay";
+		clock-frequency = <100000>;
+	};
+
+	/* EHCI instance 0: USB1_DP/N -> USBC_P/N */
+	usb@c5000000 {
+		status = "okay";
+		dr_mode = "host";
+	};
+
+	/* EHCI instance 1: ULPI -> USB3340 -> AX88772B */
+	usb@c5004000 {
+		status = "okay";
+		/* ULPI_RESET */
+		nvidia,phy-reset-gpio =
+				<&gpio TEGRA_GPIO(V, 1) GPIO_ACTIVE_LOW>;
+		/* VBUS_LAN */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(BB, 1) GPIO_ACTIVE_HIGH>;
+	};
+
+	/* EHCI instance 2: USB3_DP/N -> USBH_P/N */
+	usb@c5008000 {
+		status = "okay";
+		/* USBH_PEN */
+		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(W, 2) GPIO_ACTIVE_LOW>;
+	};
+
+	sdhci@c8000600 {
+		status = "okay";
+		bus-width = <4>;
+		cd-gpios = <&gpio TEGRA_GPIO(C, 7) GPIO_ACTIVE_LOW>;
+	};
+
+	clocks {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		clk32k_in: clock@0 {
+			compatible = "fixed-clock";
+			reg=<0>;
+			#clock-cells = <0>;
+			clock-frequency = <32768>;
+		};
+	};
+
+	regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		reg_3v3: regulator@0 {
+			compatible = "regulator-fixed";
+			reg = <0>;
+			regulator-name = "+V3.3";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-always-on;
+		};
+	};
+};

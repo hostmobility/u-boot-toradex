@@ -1,0 +1,51 @@
+if TARGET_MX4_T20
+
+config SYS_BOARD
+	default "mx4_tegra2"
+
+config SYS_VENDOR
+	default "toradex"
+
+config SYS_CONFIG_NAME
+	default "mx4_t20"
+
+endif
+
+if TARGET_MX4_MIL
+
+config SYS_BOARD
+	default "mx4_tegra2"
+
+config SYS_VENDOR
+	default "toradex"
+
+config SYS_CONFIG_NAME
+	default "mx4_mil"
+
+endif
+
+if TARGET_MX4_MIL_SE
+
+config SYS_BOARD
+	default "mx4_tegra2"
+
+config SYS_VENDOR
+	default "toradex"
+
+config SYS_CONFIG_NAME
+	default "mx4_mil_se"
+
+endif
+
+if TARGET_MX4_CT
+
+config SYS_BOARD
+	default "mx4_tegra2"
+
+config SYS_VENDOR
+	default "toradex"
+
+config SYS_CONFIG_NAME
+	default "mx4_ct"
+
+endif
