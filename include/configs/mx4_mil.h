@@ -17,14 +17,13 @@
 #undef HM_UPDATE_FILE_NAME
 #define HM_UPDATE_FILE_NAME	"mil_hmupdate.img"
 
-/* hmupdate.img from USB is not enabled on MX-4 MIL*/
+/* ramdisk is not supported on MX-4 MIL*/
 #undef PROBE_USB_FOR_RAMDISK
 #define PROBE_USB_FOR_RAMDISK	""
-#undef PROBE_USB_FOR_HMUPDATE
-#define PROBE_USB_FOR_HMUPDATE	""
+
 #undef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND \
-	"if run probe_ubi; then " \
+	"if run probe_usb || run probe_ubi; then " \
 		"if source ${loadaddr}; then " \
 			"exit; " \
 		"else " \
