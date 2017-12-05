@@ -16,6 +16,7 @@
 #define CMD_AFT_DAT_MASK	(1 << 24)
 #define CMD_AFT_DAT_DISABLE	0
 #define CMD_AFT_DAT_ENABLE	(1 << 24)
+#define CMD_TRANS_SIZE(x)	(((x) & 0xf) << 20)
 #define CMD_TRANS_SIZE_SHIFT	20
 #define CMD_TRANS_SIZE_PAGE	8
 #define CMD_A_VALID		(1 << 19)
@@ -31,6 +32,7 @@
 #define CMD_CE1			(1 << 9)
 #define CMD_CE0			(1 << 8)
 #define CMD_CLE_BYTE_SIZE_SHIFT	4
+#define CMD_ALE_SIZE(x)			(((x) & 0xf) << 0)
 enum {
 	CMD_CLE_BYTES1 = 0,
 	CMD_CLE_BYTES2,
@@ -111,6 +113,7 @@ enum {
 	CFG_SKIP_SPARE_SEL_16	= 3 << 14
 };
 #define CFG_TAG_BYTE_SIZE_MASK	0x1FF
+#define CFG_TAG_BYTE_SIZE(x)			((x) & 0xff)
 
 #define TIMING_0			0x14
 #define TIMING_TRP_RESP_CNT_SHIFT	28
@@ -153,6 +156,7 @@ enum {
 #define DMA_MST_CTRL_PERF_EN_MASK	(1 << 29)
 #define DMA_MST_CTRL_PERF_EN_DISABLE	0
 #define DMA_MST_CTRL_PERF_EN_ENABLE	(1 << 29)
+#define DMA_MST_CTRL_IE_DONE		(1 << 28)
 #define DMA_MST_CTRL_REUSE_BUFFER_MASK	(1 << 27)
 #define DMA_MST_CTRL_REUSE_BUFFER_DISABLE	0
 #define DMA_MST_CTRL_REUSE_BUFFER_ENABLE	(1 << 27)
