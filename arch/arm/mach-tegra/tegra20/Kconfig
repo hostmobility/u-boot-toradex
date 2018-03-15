@@ -39,6 +39,9 @@ config TARGET_MX4_T20
 config TARGET_MX4_MIL
 	bool "Toradex Colibri T20 on a MX-4 MIL board"
 
+config TARGET_MX4_MIL_SE
+	bool "Toradex Colibri T20 on a MX-4 MIL board (secure update)"
+
 endchoice
 
 config SYS_SOC
