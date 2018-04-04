@@ -140,6 +140,7 @@ static int tegra30_spi_claim_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
 	struct spi_regs *regs = priv->regs;
+    unsigned int mode = priv->mode;
 	u32 reg;
 
 	/* Change SPI clock to correct frequency, PLLP_OUT0 source */
@@ -155,6 +156,17 @@ static int tegra30_spi_claim_bus(struct udevice *dev)
 	/* Set master mode and sw controlled CS */
 	reg = readl(&regs->command);
 	reg |= SLINK_CMD_M_S | SLINK_CMD_CS_SOFT;
+
+	/* Set CPOL and CPHA */
+	reg &= ~(SLINK_CMD_IDLE_SCLK_MASK | SLINK_CMD_CK_SDA);
+	if (mode & SPI_CPHA)
+		reg |= SLINK_CMD_CK_SDA;
+
+	if (mode & SPI_CPOL)
+		reg |= SLINK_CMD_IDLE_SCLK_DRIVE_HIGH;
+	else
+		reg |= SLINK_CMD_IDLE_SCLK_DRIVE_LOW;
+
 	writel(reg, &regs->command);
 	debug("%s: COMMAND = %08x\n", __func__, readl(&regs->command));
 
@@ -325,25 +337,9 @@ static int tegra30_spi_set_speed(struct udevice *bus, uint speed)
 static int tegra30_spi_set_mode(struct udevice *bus, uint mode)
 {
 	struct tegra30_spi_priv *priv = dev_get_priv(bus);
-	struct spi_regs *regs = priv->regs;
-	u32 reg;
-
-	reg = readl(&regs->command);
-
-	/* Set CPOL and CPHA */
-	reg &= ~(SLINK_CMD_IDLE_SCLK_MASK | SLINK_CMD_CK_SDA);
-	if (mode & SPI_CPHA)
-		reg |= SLINK_CMD_CK_SDA;
-
-	if (mode & SPI_CPOL)
-		reg |= SLINK_CMD_IDLE_SCLK_DRIVE_HIGH;
-	else
-		reg |= SLINK_CMD_IDLE_SCLK_DRIVE_LOW;
-
-	writel(reg, &regs->command);
 
 	priv->mode = mode;
-	debug("%s: regs=%p, mode=%d\n", __func__, priv->regs, priv->mode);
+	debug("%s: , mode=%d\n", __func__, priv->mode);
 
 	return 0;
 }
