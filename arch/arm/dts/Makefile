@@ -287,6 +287,7 @@ dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	bk4r1.dtb
 
 dtb-$(CONFIG_MX6) += imx6ull-14x14-evk.dtb \
+	imx6ull-colibri.dtb \
 	imx6dl-icore.dtb \
 	imx6q-icore.dtb
 

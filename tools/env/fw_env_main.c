@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <sys/file.h>
 #include <unistd.h>
+#include <version.h>
 #include "fw_env.h"
 
 #define CMD_PRINTENV	"fw_printenv"
@@ -47,6 +48,7 @@ static struct option long_options[] = {
 	{"script", required_argument, NULL, 's'},
 	{"noheader", required_argument, NULL, 'n'},
 	{"lock", required_argument, NULL, 'l'},
+	{"version", no_argument, NULL, 'v'},
 	{NULL, 0, NULL, 0}
 };
 
@@ -66,6 +68,7 @@ void usage_printenv(void)
 		"Print variables from U-Boot environment\n"
 		"\n"
 		" -h, --help           print this help.\n"
+		" -v, --version        display version\n"
 #ifdef CONFIG_ENV_AES
 		" -a, --aes            aes key to access environment\n"
 #endif
@@ -84,6 +87,7 @@ void usage_setenv(void)
 		"Modify variables in U-Boot environment\n"
 		"\n"
 		" -h, --help           print this help.\n"
+		" -v, --version        display version\n"
 #ifdef CONFIG_ENV_AES
 		" -a, --aes            aes key to access environment\n"
 #endif
@@ -122,7 +126,7 @@ static void parse_common_args(int argc, char *argv[])
 	env_opts.config_file = CONFIG_FILE;
 #endif
 
-	while ((c = getopt_long(argc, argv, ":a:c:l:h", long_options, NULL)) !=
+	while ((c = getopt_long(argc, argv, ":a:c:l:h:v", long_options, NULL)) !=
 	       EOF) {
 		switch (c) {
 		case 'a':
@@ -144,6 +148,10 @@ static void parse_common_args(int argc, char *argv[])
 			do_printenv ? usage_printenv() : usage_setenv();
 			exit(EXIT_SUCCESS);
 			break;
+		case 'v':
+			fprintf(stderr, "Compiled with " U_BOOT_VERSION "\n");
+			exit(EXIT_SUCCESS);
+			break;
 		default:
 			/* ignore unknown options */
 			break;
@@ -161,7 +169,7 @@ int parse_printenv_args(int argc, char *argv[])
 
 	parse_common_args(argc, argv);
 
-	while ((c = getopt_long(argc, argv, "a:c:ns:l:h", long_options, NULL))
+	while ((c = getopt_long(argc, argv, "a:c:ns:l:h:v", long_options, NULL))
 		!= EOF) {
 		switch (c) {
 		case 'n':
@@ -188,7 +196,7 @@ int parse_setenv_args(int argc, char *argv[])
 
 	parse_common_args(argc, argv);
 
-	while ((c = getopt_long(argc, argv, "a:c:ns:l:h", long_options, NULL))
+	while ((c = getopt_long(argc, argv, "a:c:ns:l:h:v", long_options, NULL))
 		!= EOF) {
 		switch (c) {
 		case 's':

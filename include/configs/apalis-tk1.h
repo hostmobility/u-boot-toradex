@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Toradex, Inc.
+ * Copyright (c) 2016-2017 Toradex, Inc.
  *
  * Configuration settings for the Toradex Apalis TK1 modules.
  *
@@ -15,6 +15,7 @@
 #define CONFIG_AS3722_POWER
 
 #include "tegra124-common.h"
+#undef CONFIG_ISO_PARTITION
 
 #define CONFIG_ARCH_MISC_INIT
 
@@ -24,6 +25,9 @@
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
+
+#define FDT_MODULE			"apalis-v1.2"
+#define FDT_MODULE_V1_0			"apalis"
 
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA
@@ -66,24 +70,24 @@
 #define CONFIG_SERVERIP		192.168.10.1
 
 #define CONFIG_BOOTCOMMAND \
-	"run emmcboot; setenv fdtfile ${soc}-apalis-${fdt_board}.dtb && " \
+	"run emmcboot; setenv fdtfile ${soc}-${fdt_module}-${fdt_board}.dtb && " \
 		"run distro_bootcmd"
 
 #define DFU_ALT_EMMC_INFO	"apalis-tk1.img raw 0x0 0x500 mmcpart 1; " \
 				"boot part 0 1 mmcpart 0; " \
 				"rootfs part 0 2 mmcpart 0; " \
-				"uImage fat 0 1 mmcpart 0; " \
+				"zImage fat 0 1 mmcpart 0; " \
 				"tegra124-apalis-eval.dtb fat 0 1 mmcpart 0"
 
 #define EMMC_BOOTCMD \
-	"emmcargs=ip=off root=/dev/mmcblk0p2 rw rootfstype=ext3 rootwait\0" \
+	"emmcargs=ip=off root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait\0" \
 	"emmcboot=run setup; setenv bootargs ${defargs} ${emmcargs} " \
 		"${setupargs} ${vidargs}; echo Booting from internal eMMC " \
 		"chip...; run emmcdtbload; load mmc 0:1 ${kernel_addr_r} " \
 		"${boot_file} && run fdt_fixup && " \
-		"bootm ${kernel_addr_r} - ${dtbparam}\0" \
+		"bootz ${kernel_addr_r} - ${dtbparam}\0" \
 	"emmcdtbload=setenv dtbparam; load mmc 0:1 ${fdt_addr_r} " \
-		"${soc}-apalis-${fdt_board}.dtb && " \
+		"${soc}-${fdt_module}-${fdt_board}.dtb && " \
 		"setenv dtbparam ${fdt_addr_r}\0"
 
 #define NFS_BOOTCMD \
@@ -91,42 +95,44 @@
 	"nfsboot=pci enum; run setup; setenv bootargs ${defargs} ${nfsargs} " \
 		"${setupargs} ${vidargs}; echo Booting via DHCP/TFTP/NFS...; " \
 		"run nfsdtbload; dhcp ${kernel_addr_r} " \
-		"&& run fdt_fixup && bootm ${kernel_addr_r} - ${dtbparam}\0" \
+		"&& run fdt_fixup && bootz ${kernel_addr_r} - ${dtbparam}\0" \
 	"nfsdtbload=setenv dtbparam; tftp ${fdt_addr_r} " \
-		"${soc}-apalis-${fdt_board}.dtb " \
+		"${soc}-${fdt_module}-${fdt_board}.dtb " \
 		"&& setenv dtbparam ${fdt_addr_r}\0"
 
 #define SD_BOOTCMD \
-	"sdargs=ip=off root=/dev/mmcblk1p2 rw rootfstype=ext4 rootwait\0" \
+	"sdargs=ip=off root=/dev/mmcblk1p2 ro rootfstype=ext4 rootwait\0" \
 	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} ${setupargs} " \
 		"${vidargs}; echo Booting from SD card in 8bit slot...; " \
 		"run sddtbload; load mmc 1:1 ${kernel_addr_r} " \
 		"${boot_file} && run fdt_fixup && " \
-		"bootm ${kernel_addr_r} - ${dtbparam}\0" \
+		"bootz ${kernel_addr_r} - ${dtbparam}\0" \
 	"sddtbload=setenv dtbparam; load mmc 1:1 ${fdt_addr_r} " \
-		"${soc}-apalis-${fdt_board}.dtb " \
+		"${soc}-${fdt_module}-${fdt_board}.dtb " \
 		"&& setenv dtbparam ${fdt_addr_r}\0"
 
 #define USB_BOOTCMD \
-	"usbargs=ip=off root=/dev/sda2 rw rootfstype=ext4 rootwait\0" \
+	"usbargs=ip=off root=/dev/sda2 ro rootfstype=ext4 rootwait\0" \
 	"usbboot=run setup; setenv bootargs ${defargs} ${setupargs} " \
 		"${usbargs} ${vidargs}; echo Booting from USB stick...; " \
 		"usb start && run usbdtbload; load usb 0:1 ${kernel_addr_r} " \
 		"${boot_file} && run fdt_fixup && " \
-		"bootm ${kernel_addr_r} - ${dtbparam}\0" \
+		"bootz ${kernel_addr_r} - ${dtbparam}\0" \
 	"usbdtbload=setenv dtbparam; load usb 0:1 ${fdt_addr_r} " \
-		"${soc}-apalis-${fdt_board}.dtb " \
+		"${soc}-${fdt_module}-${fdt_board}.dtb " \
 		"&& setenv dtbparam ${fdt_addr_r}\0"
 
 #define BOARD_EXTRA_ENV_SETTINGS \
-	"boot_file=uImage\0" \
+	"boot_file=zImage\0" \
 	"console=ttyS0\0" \
 	"defargs=lp0_vec=2064@0xf46ff000 core_edp_mv=1150 core_edp_ma=4000 " \
-		"usb_port_owner_info=2 lane_owner_info=6 emc_max_dvfs=0\0" \
+		"usb_port_owner_info=2 lane_owner_info=6 emc_max_dvfs=0 " \
+		"pcie_aspm=off user_debug=30\0" \
 	"dfu_alt_info=" DFU_ALT_EMMC_INFO "\0" \
 	EMMC_BOOTCMD \
 	"fdt_board=eval\0" \
 	"fdt_fixup=;\0" \
+	"fdt_module=" FDT_MODULE "\0" \
 	NFS_BOOTCMD \
 	SD_BOOTCMD \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \

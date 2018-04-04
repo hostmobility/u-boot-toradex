@@ -429,15 +429,15 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CS2CDR_ENFC_CLK_SEL_DQ(v)		(((v) & 0x3) << 16)
 
 #define MXC_CCM_CS2CDR_ENFC_CLK_SEL_MASK		\
-	((is_mx6dqp() || is_cpu_type(MXC_CPU_MX6UL)) ?	\
+	((is_mx6dqp() || is_mx6ul() || is_mx6ull()) ?	\
 	 MXC_CCM_CS2CDR_ENFC_CLK_SEL_MASK_DQP :		\
 	 MXC_CCM_CS2CDR_ENFC_CLK_SEL_MASK_DQ)
 #define MXC_CCM_CS2CDR_ENFC_CLK_SEL_OFFSET		\
-	((is_mx6dqp() || is_cpu_type(MXC_CPU_MX6UL)) ?	\
+	((is_mx6dqp() || is_mx6ul() || is_mx6ull()) ?	\
 	 MXC_CCM_CS2CDR_ENFC_CLK_SEL_OFFSET_DQP :	\
 	 MXC_CCM_CS2CDR_ENFC_CLK_SEL_OFFSET_DQ)
 #define MXC_CCM_CS2CDR_ENFC_CLK_SEL(v)			\
-	((is_mx6dqp() || is_cpu_type(MXC_CPU_MX6UL)) ?	\
+	((is_mx6dqp() || is_mx6ul() || is_mx6ull()) ?	\
 	 MXC_CCM_CS2CDR_ENFC_CLK_SEL_DQP(v) :		\
 	 MXC_CCM_CS2CDR_ENFC_CLK_SEL_DQ(v))
 
@@ -1271,7 +1271,7 @@ struct mxc_ccm_reg {
 	(((v) << 0) & BM_ANADIG_PFD_528_PFD0_FRAC)
 
 #define BM_ANADIG_ANA_MISC0_REFTOP_SELBIASOFF 0x00000008
-#define BM_ANADIG_ANA_MISC0_REFTOP_VBGADJ 0x60
+#define BM_ANADIG_ANA_MISC0_REFTOP_VBGADJ_SHIFT 4
 
 #define BM_PMU_MISC2_AUDIO_DIV_MSB (1 << 23)
 #define BP_PMU_MISC2_AUDIO_DIV_MSB 23

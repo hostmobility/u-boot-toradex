@@ -128,7 +128,7 @@
 	"scriptaddr=0x87000000\0"
 
 #define SD_BOOTCMD \
-	"sdargs=root=/dev/mmcblk0p2 rw rootwait\0"	\
+	"sdargs=root=/dev/mmcblk0p2 ro rootwait\0"	\
 	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} " \
 	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
 		"load mmc 0:2 ${kernel_addr_r} /boot/${kernel_file} && " \
@@ -145,7 +145,7 @@
 		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
 #define UBI_BOOTCMD	\
-	"ubiargs=ubi.mtd=ubi root=ubi0:rootfs rootfstype=ubifs " \
+	"ubiargs=ubi.mtd=ubi root=ubi0:rootfs rw rootfstype=ubifs " \
 		"ubi.fm_autoconvert=1\0" \
 	"ubiboot=run setup; " \
 		"setenv bootargs ${defargs} ${ubiargs} " \
@@ -166,6 +166,8 @@
 #include <config_distro_bootcmd.h>
 #include <config_distro_defaults.h>
 
+#undef CONFIG_ISO_PARTITION
+
 #define DFU_ALT_NAND_INFO "vf-bcb part 0,1;u-boot part 0,2;ubi part 0,4"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -175,7 +177,7 @@
 	SD_BOOTCMD \
 	UBI_BOOTCMD \
 	"console=ttyLP0\0" \
-	"defargs=\0" \
+	"defargs=user_debug=30\0" \
 	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
 	"fdt_board=eval-v3\0" \
 	"fdt_fixup=;\0" \

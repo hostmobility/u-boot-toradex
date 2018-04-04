@@ -10,6 +10,7 @@
 #define __CONFIG_H
 
 #include "tegra20-common.h"
+#undef CONFIG_ISO_PARTITION
 
 #undef CONFIG_SYS_DCACHE_OFF		/* breaks L4T kernel boot */
 #define CONFIG_ARCH_MISC_INIT
@@ -115,7 +116,7 @@
 		"&& setenv dtbparam ${fdt_addr_r}\0"
 
 #define SD_BOOTCMD \
-	"sdargs=ip=off root=/dev/mmcblk0p2 rw,noatime rootfstype=ext3 " \
+	"sdargs=ip=off root=/dev/mmcblk0p2 ro rootfstype=ext3 " \
 		"rootwait\0" \
 	"sdboot=run setup; setenv bootargs ${defargs} ${mtdparts} ${sdargs} " \
 		"${setupargs} ${vidargs}; echo Booting from SD card...; " \
@@ -126,7 +127,7 @@
 		"&& setenv dtbparam ${fdt_addr_r}\0"
 
 #define UBI_BOOTCMD \
-	"ubiargs=ubi.mtd=ubi root=ubi0:rootfs rootfstype=ubifs " \
+	"ubiargs=ubi.mtd=ubi root=ubi0:rootfs rw rootfstype=ubifs " \
 		"ubi.fm_autoconvert=1\0" \
 	"ubiboot=run setup; setenv bootargs ${defargs} ${ubiargs} ${mtdparts}" \
 		" ${setupargs} ${vidargs}; echo Booting from NAND...; " \
@@ -139,7 +140,7 @@
 		"setenv dtbparam ${fdt_addr_r}\0"
 
 #define USB_BOOTCMD \
-	"usbargs=ip=off root=/dev/sda2 rw,noatime rootfstype=ext3 " \
+	"usbargs=ip=off root=/dev/sda2 ro rootfstype=ext3 " \
 		"rootwait\0" \
 	"usbboot=run setup; setenv bootargs ${defargs} ${mtdparts} " \
 		"${setupargs} ${usbargs} ${vidargs}; echo Booting from USB " \
@@ -153,7 +154,7 @@
 #define BOARD_EXTRA_ENV_SETTINGS \
 	"boot_file=zImage\0" \
 	"console=ttyS0\0" \
-	"defargs=vmalloc=128M usb_high_speed=1\0" \
+	"defargs=vmalloc=128M usb_high_speed=1 user_debug=30\0" \
 	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
 	"fdt_board=eval-v3\0" \
 	"fdt_fixup=;\0" \

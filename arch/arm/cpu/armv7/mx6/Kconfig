@@ -1,6 +1,7 @@
 if ARCH_MX6
 
 config MX6
+	select GPT_TIMER if !MX6UL && !MX6ULL
 	bool
 	default y
 
@@ -29,6 +30,7 @@ config MX6SX
 config MX6UL
 	select SYS_L2CACHE_OFF
 	select ROM_UNIFIED_SECTIONS
+	select SYSCOUNTER_TIMER
 	bool
 
 config MX6ULL
@@ -77,6 +79,12 @@ config TARGET_COLIBRI_IMX6
 	select SUPPORT_SPL
 	select DM
 	select DM_SERIAL
+	select DM_THERMAL
+
+config TARGET_COLIBRI_IMX6ULL
+	bool "Toradex Colibri iMX6ULL"
+	select MX6ULL
+	select DM
 	select DM_THERMAL
 
 config TARGET_EMBESTMX6BOARDS
@@ -268,6 +276,7 @@ source "board/tbs/tbs2910/Kconfig"
 source "board/tqc/tqma6/Kconfig"
 source "board/toradex/apalis_imx6/Kconfig"
 source "board/toradex/colibri_imx6/Kconfig"
+source "board/toradex/colibri-imx6ull/Kconfig"
 source "board/udoo/Kconfig"
 source "board/wandboard/Kconfig"
 source "board/warp/Kconfig"

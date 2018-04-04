@@ -1,27 +1,26 @@
 /*
- * Copyright 2016-2017 Toradex AG
+ * Copyright 2017 Toradex AG
  *
- * Configuration settings for the Colibri iMX7 module.
+ * Configuration settings for the Colibri iMX6ULL module.
  *
- * based on mx7dsabresd.h:
- * Copyright (C) 2015 Freescale Semiconductor, Inc.
+ * based on colibri_imx7.h:
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __COLIBRI_IMX7_CONFIG_H
-#define __COLIBRI_IMX7_CONFIG_H
+#ifndef __COLIBRI_IMX6ULL_CONFIG_H
+#define __COLIBRI_IMX6ULL_CONFIG_H
 
-#include "mx7_common.h"
+#include "mx6_common.h"
+#define CONFIG_IOMUX_LPSR
 
 #define CONFIG_SYS_THUMB_BUILD
 #define CONFIG_USE_ARCH_MEMCPY
 #define CONFIG_USE_ARCH_MEMSET
 
-/*#define CONFIG_DBG_MONITOR*/
+/* #define CONFIG_DBG_MONITOR*/
 #define PHYS_SDRAM_SIZE			SZ_512M
 
-#define CONFIG_ARCH_MISC_INIT
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_LATE_INIT
 
@@ -48,7 +47,7 @@
 #define CONFIG_TFTP_TSIZE
 
 /* ENET1 */
-#define IMX_FEC_BASE			ENET_IPS_BASE_ADDR
+#define IMX_FEC_BASE			ENET2_BASE_ADDR
 
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
@@ -64,6 +63,8 @@
 #define CONFIG_IPADDR			192.168.10.2
 #define CONFIG_NETMASK			255.255.255.0
 #define CONFIG_SERVERIP			192.168.10.1
+
+#define FDT_FILE "imx6ull-colibri${variant}-${fdt_board}.dtb"
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
@@ -81,16 +82,15 @@
 		"setenv bootargs ${defargs} ${nfsargs} " \
 		"${setupargs} ${vidargs}; echo Booting from NFS...;" \
 		"dhcp ${kernel_addr_r} && " \
-		"tftp ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
+		"tftp ${fdt_addr_r} " FDT_FILE " && " \
 		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
 #define SD_BOOTCMD \
 	"sdargs=root=/dev/mmcblk0p2 ro rootwait\0" \
 	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} " \
 	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
-	"run m4boot && " \
 	"load mmc 0:1 ${kernel_addr_r} ${kernel_file} && " \
-	"load mmc 0:1 ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
+	"load mmc 0:1 ${fdt_addr_r} " FDT_FILE " && " \
 	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
 #define UBI_BOOTCMD \
@@ -99,13 +99,13 @@
 	"ubiboot=run setup; " \
 		"setenv bootargs ${defargs} ${ubiargs} " \
 		"${setupargs} ${vidargs}; echo Booting from NAND...; " \
-		"ubi part ubi && run m4boot && " \
+		"ubi part ubi &&" \
 		"ubi read ${kernel_addr_r} kernel && " \
 		"ubi read ${fdt_addr_r} dtb && " \
 		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
 #define CONFIG_BOOTCOMMAND "run ubiboot; " \
-	"setenv fdtfile ${soc}-colibri-${fdt_board}.dtb && run distro_bootcmd;"
+	"setenv fdtfile " FDT_FILE " && run distro_bootcmd;"
 
 #define BOOTENV_RUN_NET_USB_START ""
 #define BOOT_TARGET_DEVICES(func) \
@@ -117,6 +117,8 @@
 
 #undef CONFIG_ISO_PARTITION
 
+#define DFU_ALT_NAND_INFO "imx6ull-bcb part 0,1;u-boot1 part 0,2;u-boot2 part 0,3;u-boot-env part 0,4;ubi partubi 0,5"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
@@ -125,9 +127,9 @@
 	UBI_BOOTCMD \
 	"console=ttymxc0\0" \
 	"defargs=user_debug=30\0" \
+	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
 	"fdt_board=eval-v3\0" \
 	"fdt_fixup=;\0" \
-	"m4boot=;\0" \
 	"ip_dyn=yes\0" \
 	"kernel_file=zImage\0" \
 	"mtdparts=" MTDPARTS_DEFAULT "\0" \
@@ -153,7 +155,7 @@
 #define CONFIG_SYS_LONGHELP
 
 #define CONFIG_SYS_MEMTEST_START	0x80000000
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x0c000000)
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x08000000)
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
@@ -190,8 +192,8 @@
 
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BASE		0x40000000
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+/* used to initialize CONFIG_SYS_NAND_BASE_LIST which is unused */
+#define CONFIG_SYS_NAND_BASE		-1
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 
@@ -206,7 +208,7 @@
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define MTDIDS_DEFAULT		"nand0=gpmi-nand"
 #define MTDPARTS_DEFAULT	"mtdparts=gpmi-nand:"		\
-				"512k(mx7-bcb),"		\
+				"512k(mx6ull-bcb),"		\
 				"1536k(u-boot1)ro,"		\
 				"1536k(u-boot2)ro,"		\
 				"512k(u-boot-env),"		\
@@ -236,6 +238,7 @@
 
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_MXS
+#define MXS_LCDIF_BASE MX6UL_LCDIF1_BASE_ADDR
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
@@ -244,5 +247,8 @@
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
+
+/* TODO new from mx6ullevk.h */
+#define CONFIG_MXC_GPIO
 
 #endif

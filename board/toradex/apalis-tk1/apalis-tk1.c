@@ -10,12 +10,14 @@
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
+#include <fdt_support.h>
 #include <pci_tegra.h>
 #include <power/as3722.h>
 
 #include "../common/tdx-common.h"
 #include "pinmux-config-apalis-tk1.h"
 
+#define FAN_EN		TEGRA_GPIO(DD, 2) /* Apalis GPIO8 */
 #define LAN_DEV_OFF_N	TEGRA_GPIO(O, 6)
 #define LAN_RESET_N	TEGRA_GPIO(S, 2)
 #define LAN_WAKE_N	TEGRA_GPIO(O, 5)
@@ -23,8 +25,10 @@
 #define PEX_PERST_N	TEGRA_GPIO(DD, 1) /* Apalis GPIO7 */
 #define RESET_MOCI_CTRL	TEGRA_GPIO(U, 4)
 #endif /* CONFIG_APALIS_TK1_PCIE_EVALBOARD_INIT */
-
-#define IXORA_FAN_GPIO TEGRA_GPIO(DD, 2)
+#define VCC_USBH	TEGRA_GPIO(T, 6)
+#define VCC_USBH_V1_0	TEGRA_GPIO(N, 5)
+#define VCC_USBO1	TEGRA_GPIO(T, 5)
+#define VCC_USBO1_V1_0	TEGRA_GPIO(N, 4)
 
 int arch_misc_init(void)
 {
@@ -32,6 +36,37 @@ int arch_misc_init(void)
 	    NVBOOTTYPE_RECOVERY) {
 		printf("USB recovery mode, disabled autoboot\n");
 		setenv("bootdelay", "-1");
+	}
+
+	/* PCB Version Indication: V1.2 and later have GPIO_PV0 wired to GND */
+	gpio_request(TEGRA_GPIO(V, 0), "PCB Version Indication");
+	gpio_direction_input(TEGRA_GPIO(V, 0));
+	if (gpio_get_value(TEGRA_GPIO(V, 0))) {
+		/*
+		 * if using the default device tree for new V1.2 and later HW,
+		 * use version for older V1.0 and V1.1 HW
+		 */
+		char *fdt_env = getenv("fdt_module");
+		if ((fdt_env != NULL) && (strcmp(FDT_MODULE, fdt_env) == 0)) {
+			setenv("fdt_module", FDT_MODULE_V1_0);
+			printf("patching fdt_module to " FDT_MODULE_V1_0
+			       " for older V1.0 and V1.1 HW\n");
+#ifndef CONFIG_ENV_IS_NOWHERE
+			saveenv();
+#endif
+		}
+
+		/* activate USB power enable GPIOs */
+		gpio_request(VCC_USBH_V1_0, "VCC_USBH");
+		gpio_direction_output(VCC_USBH_V1_0, 1);
+		gpio_request(VCC_USBO1_V1_0, "VCC_USBO1");
+		gpio_direction_output(VCC_USBO1_V1_0, 1);
+	} else {
+		/* activate USB power enable GPIOs */
+		gpio_request(VCC_USBH, "VCC_USBH");
+		gpio_direction_output(VCC_USBH, 1);
+		gpio_request(VCC_USBO1, "VCC_USBO1");
+		gpio_direction_output(VCC_USBO1, 1);
 	}
 
 	return 0;
@@ -47,6 +82,18 @@ int checkboard(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, bd_t *bd)
 {
+	uint8_t enetaddr[6];
+
+	/* MAC addr */
+	if (eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		int err = fdt_find_and_setprop(blob,
+				     "/pcie@1003000/pci@2,0/pcie@0",
+				     "local-mac-address", enetaddr, 6, 0);
+
+		if (err >= 0)
+			puts("   MAC address updated...\n");
+	}
+
 	return ft_common_board_setup(blob, bd);
 }
 #endif
@@ -215,7 +262,6 @@ void tegra_pcie_board_port_reset(struct tegra_pcie_port *port)
 
 void start_cpu_fan(void)
 {
-    gpio_request(IXORA_FAN_GPIO, "IXORA_FAN_GPIO");
-    gpio_direction_output(IXORA_FAN_GPIO, 1);
-
+	gpio_request(FAN_EN, "FAN_EN");
+	gpio_direction_output(FAN_EN, 1);
 }

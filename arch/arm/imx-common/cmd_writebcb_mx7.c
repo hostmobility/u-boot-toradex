@@ -24,10 +24,22 @@
 #include <linux/bch.h>
 #include <malloc.h>
 #include <nand.h>
+
+#ifdef CONFIG_MX7
+/*
+ * compare with v5_rom_mtd_commit_structures vs. v6_rom_mtd_commit_structures
+ * in imx-kobs/src/mtd.c
+ */
+#define USE_RANDOMIZER
+#define USE_62_BIT_ECC
+#endif
+
+#ifdef USE_RANDOMIZER
 #include "rand.h"
+#define RAND_16K		(16 * 1024)
+#endif
 
 #define PAGES_PER_STRIDE	64
-#define RAND_16K		(16 * 1024)
 
 #define BOOT_SEARCH_COUNT	2 /* match with BOOT_CFG_FUSES [6:5] */
 
@@ -197,6 +209,7 @@ int encode_bch_ecc(void *source_block, size_t source_size, void *target_block,
 	/* gf: FCB_GF */
 	int m, b0, e0, bn, en, n, gf;
 
+#ifdef USE_62_BIT_ECC
 	/* 62 bit BCH, for i.MX6SX and i.MX7D */
 	m = 32;
 	b0 = 128;
@@ -205,6 +218,16 @@ int encode_bch_ecc(void *source_block, size_t source_size, void *target_block,
 	en = 62;
 	n = 7;
 	gf = 13;
+#else
+	/* 40 bit BCH, for i.MX6UL */
+	m  = 32;
+	b0 = 128;
+	e0 = 40;
+	bn = 128;
+	en = 40;
+	n  = 7;
+	gf = 13;
+#endif
 
 	/* sanity check */
 	/* nand data block must be large enough for FCB structure */
@@ -365,7 +388,7 @@ static void create_dbbt(struct mtd_info *nand, uint8_t *buf)
 static int do_write_bcb(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
-	int j, k, ret;
+	int j, ret;
 	uint8_t *buf;
 	size_t rwsize, maxsize;
 	ulong fw1_off, fw2_off;
@@ -398,7 +421,10 @@ static int do_write_bcb(cmd_tbl_t *cmdtp, int flag, int argc,
 	rwsize = maxsize = nand->writesize;
 
 	off = 0;
-	for(j = 0; j < BOOT_SEARCH_COUNT; j++) {
+	for (j = 0; j < BOOT_SEARCH_COUNT; j++) {
+#ifdef USE_RANDOMIZER
+		int k;
+		/* do randomizer */
 		for (k = 0; k < nand->writesize + nand->oobsize; k++) {
 			*(uint8_t *)(buf + k) ^=
 			RandData[k + ((j * PAGES_PER_STRIDE) % 256)
@@ -409,13 +435,16 @@ static int do_write_bcb(cmd_tbl_t *cmdtp, int flag, int argc,
 #ifdef DEBUG
 		printf("Randomized\n"); dump(buf, 512);
 #endif
+#endif /* USE_RANDOMIZER */
 		ret = raw_access(nand, (ulong) buf, off, 1, 0);
+#ifdef USE_RANDOMIZER
 		/* revert randomizer */
 		for (k = 0; k < nand->writesize + nand->oobsize; k++) {
 			*(uint8_t *)(buf + k) ^=
 			RandData[k + ((j * PAGES_PER_STRIDE) % 256)
 			/ 64 * RAND_16K];
 		}
+#endif /* USE_RANDOMIZER */
 
 		printf("FCB %d bytes written to 0x%x: %s\n", rwsize,
 				(unsigned) off, ret ? "ERROR" : "OK");

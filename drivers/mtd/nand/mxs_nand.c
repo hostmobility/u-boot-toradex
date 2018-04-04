@@ -201,6 +201,11 @@ static int mxs_nand_get_ecc_strength(struct mtd_info *mtd)
 	uint32_t page_oob_size = mtd->oobsize;
 	int meta = MXS_NAND_METADATA_SIZE;
 	int max_ecc_strength_supported;
+#if defined(CONFIG_NAND_MXS_BCH_LEGACY_GEO)
+	bool legacy_bch_geometry = true;
+#else
+	bool legacy_bch_geometry = false;
+#endif
 
 	/* Refer to Chapter 17 for i.MX6DQ, Chapter 18 for i.MX6SX */
 	if (is_mx6sx() || is_mx7())
@@ -215,8 +220,8 @@ static int mxs_nand_get_ecc_strength(struct mtd_info *mtd)
 
 	if (!(chip->ecc_strength_ds > 0 && chip->ecc_step_ds > 0) &&
 			!(page_oob_size > 1024)) {
-		printf("cannot support the NAND, missing necessary info\n");
-		return -EINVAL;
+		chip->ecc_step_ds = 512;
+		legacy_bch_geometry = true;
 	}
 
 	/* set some parameters according to NAND chip parameters */
@@ -251,15 +256,14 @@ static int mxs_nand_get_ecc_strength(struct mtd_info *mtd)
 				(galois_field * ecc_strength +
 				chunk_data_size * 8) + 1;
 		}
-	} else {
+	} else if (!legacy_bch_geometry) {
 		ecc_strength = chip->ecc_strength_ds;
 		ecc_strength += ecc_strength & 1;
-#if defined(CONFIG_NAND_MXS_BCH_LEGACY_GEO)
+	} else {
 		ecc_strength = ((page_oob_size - MXS_NAND_METADATA_SIZE) * 8)
 			/(galois_field * mxs_nand_ecc_chunk_cnt(mtd->writesize));
 		ecc_strength = round_down(ecc_strength, 2);
 		ecc_strength = min(ecc_strength, max_ecc_strength_supported);
-#endif
 	}
 	return 0;
 };

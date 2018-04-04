@@ -1401,7 +1401,7 @@ checkarmreloc: u-boot
 		false; \
 	fi
 
-env: scripts_basic
+env: scripts_basic $(version_h) $(timestamp_h)
 	$(Q)$(MAKE) $(build)=tools/$@
 
 tools-only: scripts_basic $(version_h) $(timestamp_h)

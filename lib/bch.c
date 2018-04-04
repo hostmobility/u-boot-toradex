@@ -154,7 +154,7 @@ static void store_ecc8(struct bch_control *bch, uint8_t *dst,
 	memcpy(dst, pad, BCH_ECC_BYTES(bch)-4*nwords);
 }
 
-#ifdef CONFIG_TARGET_COLIBRI_IMX7
+#if defined(CONFIG_CMD_WRITEBCB_MX7)
 /*
  * reverse bit for byte
  */
@@ -251,7 +251,7 @@ void encode_bch(struct bch_control *bch, const uint8_t *data,
 	 */
 	while (mlen--) {
 		/* input data is read in big-endian format */
-#if CONFIG_TARGET_COLIBRI_IMX7
+#if defined(CONFIG_CMD_WRITEBCB_MX7)
 		/*TODO: big little endian*/
 		/*w = r[0]^cpu_to_be32(*pdata++);*/
 		/*w = r[0]^(uint32_t)(*pdata++);*/

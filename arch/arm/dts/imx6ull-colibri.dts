@@ -1,0 +1,135 @@
+/*
+ * Copyright 2017 Toradex AG
+ *
+ * SPDX-License-Identifier:     GPL-2.0+ or X11
+ */
+
+/dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
+#include "imx6ull.dtsi"
+
+/ {
+	model = "Toradex Colibri iMX6ULL";
+	compatible = "toradex,imx6ull-colibri", "fsl,imx6ull";
+
+	chosen {
+		stdout-path = &uart1;
+	};
+
+	regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		reg_sd1_vmmc: regulator@1 {
+			compatible = "regulator-gpio";
+			regulator-name = "V3.3_1.8_SD";
+			gpio = <&gpio5 9 GPIO_ACTIVE_HIGH>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pinctrl_reg_sd>;
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <3300000>;
+			states = <1800000 0x1 3300000 0x0>;
+		};
+
+		reg_soc_in: regulator-gpio {
+			compatible = "regulator-fixed";
+			regulator-min-microvolt = <1275000>;
+			regulator-max-microvolt = <1275000>;
+			regulator-name = "gpio_soc_in";
+			regulator-type = "voltage";
+		};
+	};
+
+};
+
+&cpu0 {
+	arm-supply = <&reg_arm>;
+	soc-supply = <&reg_soc>;
+	dc-supply = <&reg_soc_in>;
+};
+
+#if TODO
+&clks {
+	assigned-clocks = <&clks IMX6UL_CLK_PLL4_AUDIO_DIV>;
+	assigned-clock-rates = <786432000>;
+};
+#endif
+/* TODO, remove this in U-Boot */
+&i2c1 {
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c1>;
+	pinctrl-1 = <&pinctrl_i2c1_gpio>;
+	sda-gpios = <&gpio1 29 GPIO_ACTIVE_LOW>;
+	scl-gpios = <&gpio1 28 GPIO_ACTIVE_LOW>;
+	status = "okay";
+};
+
+&i2c2 {
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c2>;
+	pinctrl-1 = <&pinctrl_i2c2_gpio>;
+	sda-gpios = <&gpio1 31 GPIO_ACTIVE_LOW>;
+	scl-gpios = <&gpio1 30 GPIO_ACTIVE_LOW>;
+	status = "okay";
+	ad7879@2c {
+		compatible = "todo";
+		reg = <0x2c>;
+	};
+};
+
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart1>;
+	uart-has-rtscts;
+	fsl,dte-mode;
+	status = "okay";
+};
+
+&iomuxc {
+	pinctrl_i2c1: i2c1grp {
+		fsl,pins = <
+			MX6UL_PAD_UART4_TX_DATA__I2C1_SCL 0x4001b8b0
+			MX6UL_PAD_UART4_RX_DATA__I2C1_SDA 0x4001b8b0
+		>;
+	};
+
+	pinctrl_i2c1_gpio: i2c1-gpio-grp {
+		fsl,pins = <
+			MX6UL_PAD_UART4_TX_DATA__GPIO1_IO28 0x4001b8b0
+			MX6UL_PAD_UART4_RX_DATA__GPIO1_IO29 0x4001b8b0
+		>;
+	};
+
+	pinctrl_i2c2: i2c2grp {
+		fsl,pins = <
+			MX6UL_PAD_UART5_TX_DATA__I2C2_SCL 0x4001b8b0
+			MX6UL_PAD_UART5_RX_DATA__I2C2_SDA 0x4001b8b0
+		>;
+	};
+
+	pinctrl_i2c2_gpio: i2c2grp {
+		fsl,pins = <
+			MX6UL_PAD_UART5_TX_DATA__GPIO1_IO30 0x4001b8b0
+			MX6UL_PAD_UART5_RX_DATA__GPIO1_IO31 0x4001b8b0
+		>;
+	};
+
+	pinctrl_reg_sd: reg-sd-grp {
+		fsl,pins = <
+			MX6UL_PAD_SNVS_TAMPER9__GPIO5_IO09 0x4001b8b0
+		>;
+	};
+
+	pinctrl_uart1: uart1-grp {
+		fsl,pins = <
+			MX6UL_PAD_UART1_TX_DATA__UART1_DTE_RX	0x79
+			MX6UL_PAD_UART1_RX_DATA__UART1_DTE_TX	0x79
+			MX6UL_PAD_UART1_RTS_B__UART1_DTE_CTS	0x79
+			MX6UL_PAD_UART1_CTS_B__UART1_DTE_RTS	0x79
+		>;
+	};
+};
+
+&iomuxc_snvs {
+};
