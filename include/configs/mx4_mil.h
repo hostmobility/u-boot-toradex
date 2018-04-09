@@ -43,13 +43,28 @@
 				"2m(u-boot)ro,"			\
 				"1m(u-boot-env),"		\
 				"1m(cfgblock)ro,"		\
-				"8m(kernel),"		\
-				"256m(config),"		\
+				"8m(kernel),"			\
+				"256m(config),"			\
 				"-(ubi)"
 
-#define BOARD_EXTRA_ENV_SETTINGS \
-	CONFIG_COMMON_EXTRA_ENV_SETTINGS \
-	"kernel_addr_nand=0x00400000\0"
+#define FDT_FILENAME "tegra20-mx4-mil.dtb"
+
+#define BOARD_EXTRA_ENV_SETTINGS				\
+	CONFIG_COMMON_EXTRA_ENV_SETTINGS			\
+	"kernel_addr_nand=0x00400000\0"				\
+	"fdt_filename=" FDT_FILENAME "\0"			\
+	"ubiload_fdt=ubi part ubi &&"				\
+ 	 " ubifsmount ubi:rootfs &&"				\
+	 " ubifsload ${fdt_addr_r} boot/${fdt_filename}\0"
+
+#undef UBI_BOOTCMD
+#define UBI_BOOTCMD							\
+	"ubiboot=run setup; setenv bootargs ${defargs} ${hmargs}"	\
+	 " ${ubiargs} ${mtdparts} ${setupargs} ${vidargs};"		\
+	 " run ubiload_fdt;"						\
+	 " mx4_pic restart;"						\
+	 " nand read ${kernel_addr_r} kernel &&"			\
+	 " bootz ${kernel_addr_r} - ${fdt_addr_r}"
 
 #undef CONFIG_SYS_DFU_DATA_BUF_SIZE
 #include "tegra-common-post.h"
