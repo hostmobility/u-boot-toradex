@@ -17,6 +17,13 @@
 #undef HM_UPDATE_FILE_NAME
 #define HM_UPDATE_FILE_NAME	"mil_hmupdate.img"
 
+#undef PROBE_USB_FOR_HMUPDATE
+#define PROBE_USB_FOR_HMUPDATE \
+	"usb start; " \
+	"fatls usb 0:1; " \
+	"mx4_pic set_state 2; " \
+	"fatload usb 0:1 ${loadaddr} ${updatefilename}; "
+
 /* hmupdate.img from USB is re-enabled on MX-4 MIL*/
 #undef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND \
