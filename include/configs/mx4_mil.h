@@ -50,13 +50,17 @@
 				"256m(config),"			\
 				"-(ubi)"
 
-/* Fixme: prob not the right way */
-#define FDT_FILENAME "tegra20-mx4-mil.dtb"
+#define PROBE_FDT \
+	"if env exists vcb_muxed_can && itest $vcb_muxed_can -eq 1; then " \
+	"	setenv fdt_filename tegra20-mx4-mil-p1c.dtb; " \
+	"else " \
+	"	setenv fdt_filename tegra20-mx4-mil-p1b.dtb; " \
+	"fi"
 
 #define BOARD_EXTRA_ENV_SETTINGS				\
 	CONFIG_COMMON_EXTRA_ENV_SETTINGS			\
 	"kernel_addr_nand=0x00400000\0"				\
-	"fdt_filename=" FDT_FILENAME "\0"			\
+	"probe_fdt=" PROBE_FDT "\0"					\
 	"ubiload_fdt=ubi part ubi &&"				\
  	 " ubifsmount ubi:rootfs &&"				\
 	 " ubifsload ${fdt_addr_r} /boot/${fdt_filename}\0"
@@ -66,6 +70,7 @@
 	"ubiboot=run setup; setenv bootargs ${defargs} ${hmargs}"	\
 	  " ${ubiargs} ${mtdparts} ${setupargs} ${vidargs};"		\
 	  " mx4_pic restart;"						\
+	  " run probe_fdt;"							\
 	  " run ubiload_fdt;"						\
 	  " nand read ${kernel_addr_r} kernel &&"			\
 	  " bootz ${kernel_addr_r} - ${fdt_addr_r}"
