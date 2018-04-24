@@ -12,7 +12,7 @@
 #include "mx4-tegra20-common.h"
 
 #undef CONFIG_ENV_SIZE	/* undef size from mx4-tegra20-common.h */
-#define CONFIG_ENV_SIZE		(SZ_4K)
+#define CONFIG_ENV_SIZE		(SZ_32K)
 
 #undef HM_UPDATE_FILE_NAME
 #define HM_UPDATE_FILE_NAME	"mil_hmupdate.img"
@@ -50,17 +50,29 @@
 				"256m(config),"			\
 				"-(ubi)"
 
-#define PROBE_FDT \
-	"if env exists vcb_muxed_can && itest $vcb_muxed_can -eq 1; then " \
-	"	setenv fdt_filename tegra20-mx4-mil-p1c.dtb; " \
-	"else " \
-	"	setenv fdt_filename tegra20-mx4-mil-p1b.dtb; " \
+/* FIXME: This is a migration hack, we really want to grep defargs for
+* vcb_muxed_can=1 but we can't do that out-of-the-box. We just check the entire
+* defargs variable for (in)equality for now.. */
+#define PROBE_MUXED_CAN \
+	"if test ${defargs} = \"vmalloc=128M usb_high_speed=1 quiet\"; then" \
+	"	setenv vcb_muxed_can 0;"\
+	"else" \
+	"	setenv vcb_muxed_can 1;"\
+	"fi"
+
+#define PROBE_FDT							\
+	"run probe_muxed_can;"						\
+	"if itest ${vcb_muxed_can} -eq 1; then "			\
+	"	setenv fdt_filename tegra20-mx4-mil-p1c.dtb; "		\
+	"else "								\
+	"	setenv fdt_filename tegra20-mx4-mil-p1b.dtb; "		\
 	"fi"
 
 #define BOARD_EXTRA_ENV_SETTINGS				\
 	CONFIG_COMMON_EXTRA_ENV_SETTINGS			\
 	"kernel_addr_nand=0x00400000\0"				\
-	"probe_fdt=" PROBE_FDT "\0"					\
+	"probe_muxed_can=" PROBE_MUXED_CAN "\0"			\
+	"probe_fdt=" PROBE_FDT "\0"				\
 	"ubiload_fdt=ubi part ubi &&"				\
  	 " ubifsmount ubi:rootfs &&"				\
 	 " ubifsload ${fdt_addr_r} /boot/${fdt_filename}\0"
@@ -70,7 +82,7 @@
 	"ubiboot=run setup; setenv bootargs ${defargs} ${hmargs}"	\
 	  " ${ubiargs} ${mtdparts} ${setupargs} ${vidargs};"		\
 	  " mx4_pic restart;"						\
-	  " run probe_fdt;"							\
+	  " run probe_fdt;"						\
 	  " run ubiload_fdt;"						\
 	  " nand read ${kernel_addr_r} kernel &&"			\
 	  " bootz ${kernel_addr_r} - ${fdt_addr_r}"
