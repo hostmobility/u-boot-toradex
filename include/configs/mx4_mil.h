@@ -75,7 +75,8 @@
 	"probe_fdt=" PROBE_FDT "\0"				\
 	"ubiload_fdt=ubi part ubi &&"				\
  	 " ubifsmount ubi:rootfs &&"				\
-	 " ubifsload ${fdt_addr_r} /boot/${fdt_filename}\0"
+	 " ubifsload ${fdt_addr_r} /boot/${fdt_filename}\0"	\
+	"ubiload_zimg=ubifsload ${kernel_addr_r} /boot/zImage\0"
 
 #undef UBI_BOOTCMD
 #define UBI_BOOTCMD							\
@@ -84,7 +85,7 @@
 	  " mx4_pic restart;"						\
 	  " run probe_fdt;"						\
 	  " run ubiload_fdt;"						\
-	  " nand read ${kernel_addr_r} kernel &&"			\
+	  " run ubiload_zimg;"						\
 	  " bootz ${kernel_addr_r} - ${fdt_addr_r}"
 
 #undef CONFIG_SYS_DFU_DATA_BUF_SIZE
