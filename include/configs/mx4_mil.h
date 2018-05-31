@@ -50,18 +50,7 @@
 				"256m(config),"			\
 				"-(ubi)"
 
-/* FIXME: This is a migration hack, we really want to grep defargs for
-* vcb_muxed_can=1 but we can't do that out-of-the-box. We just check the entire
-* defargs variable for (in)equality for now.. */
-#define PROBE_MUXED_CAN \
-	"if test ${defargs} = \"vmalloc=128M usb_high_speed=1 quiet\"; then" \
-	"	setenv vcb_muxed_can 0;"\
-	"else" \
-	"	setenv vcb_muxed_can 1;"\
-	"fi"
-
 #define PROBE_FDT							\
-	"run probe_muxed_can;"						\
 	"if itest ${vcb_muxed_can} -eq 1; then "			\
 	"	setenv fdt_filename tegra20-mx4-mil-p1c.dtb; "		\
 	"else "								\
@@ -71,7 +60,6 @@
 #define BOARD_EXTRA_ENV_SETTINGS				\
 	CONFIG_COMMON_EXTRA_ENV_SETTINGS			\
 	"kernel_addr_nand=0x00400000\0"				\
-	"probe_muxed_can=" PROBE_MUXED_CAN "\0"			\
 	"probe_fdt=" PROBE_FDT "\0"				\
 	"ubiload_fdt=ubi part ubi &&"				\
  	 " ubifsmount ubi:rootfs &&"				\

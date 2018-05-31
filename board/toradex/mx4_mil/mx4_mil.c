@@ -33,6 +33,9 @@ int arch_misc_init(void)
 	/* Disable PMIC sleep mode on low supply voltage */
 	struct udevice *dev;
 	u8 addr, data[1];
+	char *defargs;
+	char *vcb_muxed_can;
+	u8 vmc_val;
 	int err;
 
 	err = i2c_get_chip_for_busnum(0, PMU_I2C_ADDRESS, 1, &dev);
@@ -118,6 +121,26 @@ int arch_misc_init(void)
 
 	if (ping_mx4_pic())
 		printf("Failed to ping mx4 pic\n");
+
+	/* Complicated below logic a bit to avoid writting the same value
+	   on each boot
+	*/
+	vmc_val = 0;
+	vcb_muxed_can = getenv("vcb_muxed_can");
+	if (vcb_muxed_can != NULL) {
+		vmc_val =  (strstr(vcb_muxed_can, "1") != NULL);
+	}
+
+	defargs = getenv("defargs");
+	if (defargs != NULL) {
+		if (strstr(defargs, "vcb_muxed_can=1") != NULL) {
+			if (!vmc_val)
+				setenv("vcb_muxed_can", "1");
+		} else {
+			if (vmc_val)
+				setenv("vcb_muxed_can", "0");
+		}
+	}
 
 	return 0;
 }
