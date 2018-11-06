@@ -42,8 +42,16 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define USB_PEN_GPIO           83
 #define USB_CDET_GPIO		102
+#define PTC0_GPIO_45		45
 
 static struct ddrmc_cr_setting colibri_vf_cr_settings[] = {
+	{ DDRMC_CR79_CTLUPD_AREF(1), 79 },
+	/* sets manual values for read lvl. (gate) delay of data slice 0/1 */
+	{ DDRMC_CR105_RDLVL_DL_0(28), 105 },
+	{ DDRMC_CR106_RDLVL_GTDL_0(24), 106 },
+	{ DDRMC_CR110_RDLVL_DL_1(28) | DDRMC_CR110_RDLVL_GTDL_1(24), 110 },
+	{ DDRMC_CR102_RDLVL_GT_REGEN | DDRMC_CR102_RDLVL_REG_EN, 102 },
+
 	/* AXI */
 	{ DDRMC_CR117_AXI0_W_PRI(0) | DDRMC_CR117_AXI0_R_PRI(0), 117 },
 	{ DDRMC_CR118_AXI1_W_PRI(1) | DDRMC_CR118_AXI1_R_PRI(1), 118 },
@@ -121,15 +129,15 @@ int dram_init(void)
 		.tras_lockout      = 0,
 		.tdal              = 12,
 		.bstlen            = 3,
-		.tdll              = 512,
+		.tdll              = 512, /* not applicable since freq. scaling is not used */
 		.trp_ab            = 6,
 		.tref              = 3120,
 		.trfc              = 64,
 		.tref_int          = 0,
 		.tpdex             = 3,
 		.txpdll            = 10,
-		.txsnr             = 48,
-		.txsr              = 468,
+		.txsnr             = 68,  /* changed to conform to JEDEC specifications */
+		.txsr              = 506, /* changed to conform to JEDEC specifications */
 		.cksrx             = 5,
 		.cksre             = 5,
 		.freq_chg_en       = 0,
@@ -643,3 +651,12 @@ int board_usb_phy_mode(int port)
 	}
 }
 #endif
+
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_request(PTC0_GPIO_45, "BL_ON");
+	gpio_direction_output(PTC0_GPIO_45, 0);
+}

@@ -189,7 +189,6 @@ void ddrmc_ctrl_init_ddr3(struct ddr3_jedec_timings const *timings,
 		   DDRMC_CR77_SWAP_EN, &ddrmr->cr[77]);
 	writel(DDRMC_CR78_Q_FULLNESS(timings->q_fullness) |
 		   DDRMC_CR78_BUR_ON_FLY_BIT(12), &ddrmr->cr[78]);
-	writel(DDRMC_CR79_CTLUPD_AREF(0), &ddrmr->cr[79]);
 
 	writel(DDRMC_CR82_INT_MASK, &ddrmr->cr[82]);
 
@@ -232,6 +231,7 @@ void ddrmc_ctrl_init_ddr3(struct ddr3_jedec_timings const *timings,
 	/* all inits done, start the DDR controller */
 	writel(DDRMC_CR00_DRAM_CLASS_DDR3 | DDRMC_CR00_START, &ddrmr->cr[0]);
 
-	while (!(readl(&ddrmr->cr[80]) && 0x100))
+	while (!(readl(&ddrmr->cr[80]) & DDRMC_CR80_MC_INIT_COMPLETE))
 		udelay(10);
+	writel(DDRMC_CR80_MC_INIT_COMPLETE, &ddrmr->cr[81]);
 }

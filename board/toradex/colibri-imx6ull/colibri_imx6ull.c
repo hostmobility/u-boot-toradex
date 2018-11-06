@@ -31,6 +31,7 @@
 #include <usb.h>
 #include <usb/ehci-ci.h>
 #include "../common/tdx-common.h"
+#include "../common/tdx-cfg-block.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -165,6 +166,15 @@ static int setup_lcd(void)
 
 	return 0;
 }
+
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_direction_output(GPIO_PWM_A, 1);
+	gpio_direction_output(GPIO_BL_ON, 0);
+}
 #endif
 
 #ifdef CONFIG_FEC_MXC
@@ -216,7 +226,7 @@ static void setup_iomux_uart(void)
 
 #ifdef CONFIG_FSL_ESDHC
 
-#define USDHC1_CD_GPIO	IMX_GPIO_NR(1, 0)
+#define USDHC1_CD_GPIO	IMX_GPIO_NR(5, 0)
 
 static struct fsl_esdhc_cfg usdhc_cfg[] = {
 	{USDHC1_BASE_ADDR, 0, 4},
@@ -270,6 +280,9 @@ int board_eth_init(bd_t *bis)
 	int ret;
 
 	setup_iomux_fec();
+
+	/* give new Ethernet PHY power save mode circuitry time to settle */
+	mdelay(300);
 
 	ret = fecmxc_initialize_multi(bis, 0,
 		CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
@@ -353,9 +366,15 @@ static const struct boot_mode board_boot_modes[] = {
 
 int board_late_init(void)
 {
-	int minc, maxc;
-	if (get_cpu_temp_grade(&minc, &maxc) != TEMP_COMMERCIAL)
+#ifdef CONFIG_TDX_CFG_BLOCK
+	/*
+	 * If we have a valid config block and it says we are a module with
+	 * Wi-Fi/Bluetooth make sure we use the -wifi device tree.
+	 */
+	if (tdx_hw_tag.prodid == COLIBRI_IMX6ULL_WIFI_BT_IT ||
+	    tdx_hw_tag.prodid == COLIBRI_IMX6ULL_WIFI_BT)
 		setenv("variant", "-wifi");
+#endif
 
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);

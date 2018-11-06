@@ -55,7 +55,23 @@ int arch_misc_init(void)
 	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
 	    NVBOOTTYPE_RECOVERY) {
 		printf("USB recovery mode, disabled autoboot\n");
+#ifdef CONFIG_TDX_EASY_INSTALLER
+		setenv("bootdelay", "-2");
+		setenv("defargs", "pcie_aspm=off user_debug=30");
+		setenv("fdt_high", "");
+		setenv("initrd_high", "");
+		setenv("setup", "setenv setupargs igb_mac=${ethaddr} " \
+			"consoleblank=0 no_console_suspend=1 " \
+			"console=${console},${baudrate}n8 ${memargs}");
+		setenv("teziargs", "rootfstype=squashfs root=/dev/ram quiet " \
+			"autoinstall");
+		setenv("vidargs", "video=HDMI-A-1:640x480-16@60 hotplugfb");
+		setenv("bootcmd", "run setup; setenv bootargs ${defargs} " \
+			"${setupargs} ${vidargs} ${teziargs}; " \
+			"bootm 0x80208000#config@1");
+#else /* CONFIG_TDX_EASY_INSTALLER */
 		setenv("bootdelay", "-1");
+#endif /* CONFIG_TDX_EASY_INSTALLER */
 	}
 
 	return 0;
@@ -197,3 +213,12 @@ void tegra_pcie_board_port_reset(struct tegra_pcie_port *port)
 #endif /* CONFIG_APALIS_T30_PCIE_EVALBOARD_INIT */
 }
 #endif /* CONFIG_PCI_TEGRA */
+
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_request(TEGRA_GPIO(V, 2), "BKL1_ON");
+	gpio_direction_output(TEGRA_GPIO(V, 2), 0);
+}

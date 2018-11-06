@@ -44,12 +44,19 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 
-/* Environment in eMMC, before config block at the end of 1st "boot sector" */
+#ifdef CONFIG_TDX_EASY_INSTALLER
+#define CONFIG_ENV_IS_NOWHERE
+#else
 #define CONFIG_ENV_IS_IN_MMC
+#endif
+
+#ifdef CONFIG_ENV_IS_IN_MMC
+/* Environment in eMMC, before config block at the end of 1st "boot sector" */
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE + \
 					 CONFIG_TDX_CFG_BLOCK_OFFSET)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		1
+#endif /*CONFIG_ENV_IS_IN_MMC */
 
 /* USB host support */
 #define CONFIG_USB_EHCI
@@ -81,9 +88,14 @@
 #undef CONFIG_SERVERIP
 #define CONFIG_SERVERIP		192.168.10.1
 
+#ifdef CONFIG_TDX_EASY_INSTALLER
+#define CONFIG_BOOTCOMMAND \
+	"run distro_bootcmd"
+#else
 #define CONFIG_BOOTCOMMAND \
 	"run emmcboot; setenv fdtfile ${soc}-apalis-${fdt_board}.dtb && " \
 		"run distro_bootcmd"
+#endif
 
 #define DFU_ALT_EMMC_INFO	"apalis_t30.img raw 0x0 0x500 mmcpart 1; " \
 				"boot part 0 1 mmcpart 0; " \
@@ -114,13 +126,11 @@
 		"&& setenv dtbparam ${fdt_addr_r}\0"
 
 #define SD_BOOTCMD \
-	"sdargs=ip=off root=/dev/mmcblk1p2 ro rootfstype=ext3 " \
-		"rootwait\0" \
+	"sdargs=ip=off root=/dev/mmcblk1p2 ro rootfstype=ext3 rootwait\0" \
 	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} ${setupargs} " \
-		"${vidargs}; echo Booting from SD card in 8bit slot...; " \
-		"run sddtbload; load mmc 1:1 ${kernel_addr_r} " \
-		"${boot_file} && run fdt_fixup && " \
-		"bootz ${kernel_addr_r} - ${dtbparam}\0" \
+		"${vidargs}; echo Booting from MMC/SD card in 8-bit slot...; " \
+		"run sddtbload; load mmc 1:1 ${kernel_addr_r} ${boot_file} " \
+		"&& run fdt_fixup && bootz ${kernel_addr_r} - ${dtbparam}\0" \
 	"sddtbload=setenv dtbparam; load mmc 1:1 ${fdt_addr_r} " \
 		"${soc}-apalis-${fdt_board}.dtb " \
 		"&& setenv dtbparam ${fdt_addr_r}\0"

@@ -756,6 +756,15 @@ static void setup_display(void)
 	gpio_direction_output(RGB_BACKLIGHTPWM_OE, 0);
 	gpio_direction_output(RGB_BACKLIGHT_GP, 1);
 }
+
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_direction_output(RGB_BACKLIGHTPWM_GP, 1);
+	gpio_direction_output(RGB_BACKLIGHT_GP, 0);
+}
 #endif /* defined(CONFIG_VIDEO_IPUV3) */
 
 int board_early_init_f(void)
@@ -837,13 +846,13 @@ int board_late_init(void)
 #endif /* CONFIG_TDX_APALIS_IMX6_V1_0 */
 #endif /* CONFIG_REVISION_TAG */
 
-#ifdef CONFIG_CMD_USB_SDP
+#if defined(CONFIG_TDX_EASY_INSTALLER) && defined(CONFIG_CMD_USB_SDP)
 	if (is_boot_from_usb()) {
 		printf("Serial Downloader recovery mode, using sdp command\n");
 		setenv("bootdelay", "0");
 		setenv("bootcmd", "sdp 0");
 	}
-#endif /* CONFIG_CMD_USB_SDP */
+#endif /* CONFIG_TDX_EASY_INSTALLER & CONFIG_CMD_USB_SDP */
 
 	return 0;
 }

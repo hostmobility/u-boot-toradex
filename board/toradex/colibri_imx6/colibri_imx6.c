@@ -36,6 +36,7 @@
 #include <mmc.h>
 #include <netdev.h>
 #include <libfdt.h>
+#include <cpu.h>
 
 #include "../common/tdx-cfg-block.h"
 #ifdef CONFIG_TDX_CMD_IMX_MFGR
@@ -506,8 +507,6 @@ static void enable_rgb(struct display_info_t const *dev)
 	imx_iomux_v3_setup_multiple_pads(
 		rgb_pads,
 		ARRAY_SIZE(rgb_pads));
-	gpio_direction_output(RGB_BACKLIGHT_GP, 1);
-	gpio_direction_output(RGB_BACKLIGHTPWM_GP, 0);
 }
 
 static int detect_default(struct display_info_t const *dev)
@@ -632,6 +631,15 @@ static void setup_display(void)
 	/* use 0 for EDT 7", use 1 for LG fullHD panel */
 	gpio_direction_output(RGB_BACKLIGHTPWM_GP, 0);
 	gpio_direction_output(RGB_BACKLIGHT_GP, 1);
+}
+
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_direction_output(RGB_BACKLIGHTPWM_GP, 1);
+	gpio_direction_output(RGB_BACKLIGHT_GP, 0);
 }
 #endif /* defined(CONFIG_VIDEO_IPUV3) */
 
@@ -1081,6 +1089,10 @@ static void ddr_init(int *table, int size)
 		writel(table[2 * i + 1], table[2 * i]);
 }
 
+static 	struct mx6_ddr_sysinfo ddr_sysinfo = {
+	.dsize          = 2,
+};
+
 static void spl_dram_init(void)
 {
 	int minc, maxc;
@@ -1097,6 +1109,7 @@ static void spl_dram_init(void)
 #ifndef CONFIG_SPL_SILENT_CONSOLE
 			puts("Commercial temperature grade DDR3 timings, 32bit bus width.\n");
 #endif
+			ddr_sysinfo.dsize = 1;
 			ddr_init(mx6s_dcd_table, ARRAY_SIZE(mx6s_dcd_table));
 		}
 		break;
@@ -1112,11 +1125,37 @@ static void spl_dram_init(void)
 #ifndef CONFIG_SPL_SILENT_CONSOLE
 			puts("Industrial temperature grade DDR3 timings, 32bit bus width.\n");
 #endif
+			ddr_sysinfo.dsize = 1;
 			ddr_init(mx6s_dcd_table, ARRAY_SIZE(mx6s_dcd_table));
 		}
 		break;
 	};
 	udelay(100);
+	/* Perform DDR DRAM calibration */
+	mmdc_do_write_level_calibration(&ddr_sysinfo);
+	mmdc_do_dqs_calibration(&ddr_sysinfo);
+}
+
+static iomux_v3_cfg_t const gpio_reset_pad[] = {
+	MX6_PAD_RGMII_RD1__GPIO6_IO27 | MUX_PAD_CTRL(NO_PAD_CTRL)
+#define GPIO_NRESET IMX_GPIO_NR(6, 27)
+};
+
+static void nreset_out(void) {
+
+	#define IMX_RESET_CAUSE_POR_MASK 0x00001
+	int reset_cause;
+
+	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
+	reset_cause = readl(&src_regs->srsr);
+
+	if (!(reset_cause & IMX_RESET_CAUSE_POR_MASK)) {
+		imx_iomux_v3_setup_multiple_pads(gpio_reset_pad,
+					 ARRAY_SIZE(gpio_reset_pad));
+		gpio_direction_output(GPIO_NRESET, 1);
+		udelay(100);
+		gpio_direction_output(GPIO_NRESET, 0);
+	}
 }
 
 void board_init_f(ulong dummy)
@@ -1144,6 +1183,9 @@ void board_init_f(ulong dummy)
 
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	/* Assert nReset_Out */
+	nreset_out();
 
 	/* load/boot image from boot device */
 	board_init_r(NULL, 0);
