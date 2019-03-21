@@ -173,7 +173,7 @@
 	"defargs=vmalloc=128M usb_high_speed=1 quiet\0" \
 	"console=ttyS0\0" \
 	"setup=setenv setupargs asix_mac=${ethaddr} g_android.dev_addr=${rndis_dev_mac}" \
-		"consoleblank=0 no_console_suspend=1 console=tty1 " \
+		"consoleblank=0 console=tty1 " \
 		"console=${console},${baudrate}n8 debug_uartport=lsport,0 " \
 		"${memargs}\0" \
 	"ubiargs=ubi.mtd=ubi root=ubi0:rootfs rootfstype=ubifs "	\
