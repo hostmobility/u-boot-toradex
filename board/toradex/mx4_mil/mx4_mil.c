@@ -127,19 +127,44 @@ int arch_misc_init(void)
 	*/
 	vmc_val = 0;
 	vcb_muxed_can = getenv("vcb_muxed_can");
-	if (vcb_muxed_can != NULL) {
+	if (vcb_muxed_can != NULL) 
+	{
 		vmc_val =  (strstr(vcb_muxed_can, "1") != NULL);
 	}
-
-	defargs = getenv("defargs");
-	if (defargs != NULL) {
-		if (strstr(defargs, "vcb_muxed_can=1") != NULL) {
-			if (!vmc_val)
-				setenv("vcb_muxed_can", "1");
-		} else {
-			if (vmc_val)
-				setenv("vcb_muxed_can", "0");
+	else
+	{
+		defargs = getenv("defargs");
+		if (defargs != NULL) 
+		{
+			if (strstr(defargs, "vcb_muxed_can=1") != NULL) 
+			{
+				vmc_val = 1;
+			} 
+			else if (strstr(defargs, "vcb_muxed_can=0") != NULL)
+			{
+				vmc_val = 0;
+			}
 		}
+		defargs = getenv("hmargs");
+		if (defargs != NULL) 
+		{
+			if (strstr(defargs, "vcb_muxed_can=1") != NULL) 
+			{
+				vmc_val = 1;
+			}
+			else if (strstr(defargs, "vcb_muxed_can=0") != NULL)
+			{
+				vmc_val = 0;
+			}
+		}
+		if(vmc_val == 1)
+		{
+			setenv("vcb_muxed_can", "1");
+		}
+		else
+		{
+			setenv("vcb_muxed_can", "0");
+		}	
 	}
 
 	return 0;
