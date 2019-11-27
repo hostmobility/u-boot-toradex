@@ -312,8 +312,9 @@ static struct pmux_pingrp_config tegra3_pinmux_common[] = {
 	/* Touch IRQ */
 	DEFAULT_PINMUX(GMI_AD12_PH4, NAND, UP, NORMAL, INPUT),
 
-	/* FR eth reset, keep off until we have eth0 and eth1 up in kernel*/
+	/* FR eth reset (PH6,PH7), keep off until we have eth0 and eth1 up in kernel*/
 	DEFAULT_PINMUX(GMI_AD14_PH6, NAND, DOWN, NORMAL, OUTPUT),
+	DEFAULT_PINMUX(GMI_AD14_PH7, NAND, DOWN, NORMAL, OUTPUT),
 
 	/* Power rails GPIO */
 	DEFAULT_PINMUX(SPI2_SCK_PX2, GMI, NORMAL, NORMAL, INPUT),
