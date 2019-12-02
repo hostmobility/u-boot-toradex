@@ -46,25 +46,10 @@ int checkboard(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, bd_t *bd)
 {
-		uint8_t enetaddr[6];
-
-	/* MAC addr */
-	if (eth_getenv_enetaddr("ethaddr", enetaddr)) {
-		int err = fdt_find_and_setprop(blob,
-				     "/ethernet",
-				     "local-mac-address", enetaddr, 6, 0);
-
-		if (err >= 0)
-			puts("   MAC address updated eth0\n");
-	}
-    /*MAC address (eth1)*/
+	uint8_t enetaddr[6];
+    /* cast mac address to eth1addr so fdt_fixup_ethernet() can be used, this fix is to make old system backcompatible */
 	if (eth_getenv_enetaddr("ethaddr2", enetaddr)) {
-		int err = fdt_find_and_setprop(blob,
-				     "/ethernet1",
-				     "local-mac-address", enetaddr, 6, 0);
-
-		if (err >= 0)
-			puts("   MAC address updated eth1\n");
+		eth_setenv_enetaddr("eth1addr", enetaddr)
 	}
 
 	return ft_common_board_setup(blob, bd);
