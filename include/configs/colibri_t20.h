@@ -169,7 +169,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_STD_DEVICES_SETTINGS \
-	"defargs=video=tegrafb vmalloc=128M usb_high_speed=1\0" \
+	"defargs=video=tegrafb vmalloc=128M usb_high_speed=1 mx4_quirk_sja1000_can3_interrupt\0" \
 	"flashargs=ip=off root=/dev/mtdblock0 rw rootfstype=yaffs2\0" \
 	"flashboot=" FLASH_BOOTCMD "\0" \
 	"mmcboot=" MMC_BOOTCMD "\0" \
