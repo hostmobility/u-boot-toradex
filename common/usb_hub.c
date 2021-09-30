@@ -398,6 +398,7 @@ static int usb_hub_configure(struct usb_device *dev)
 	      "" : "no ");
 	usb_hub_power_on(hub);
 
+    mdelay(50);
 	/*
 	 * Reset any devices that may be in a bad state when applying
 	 * the power.  This is a __weak function.  Resetting of the devices
