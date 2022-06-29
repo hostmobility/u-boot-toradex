@@ -1,0 +1,7 @@
+MX4_CT
+M:	Rikard.olander
+S:	Maintained
+F:	board/toradex/mx4_ct/
+F:	include/configs/mx4_ct.h
+F:	configs/ct_defconfig
+F:	arch/arm/dts/tegra20-colibri.dtb
