@@ -144,15 +144,14 @@
 		"nboot ${kernel_addr_r} 0 0x00280000; && bootm ${kernel_addr_r}"
 
 #define PROBE_USB_FOR_HMUPDATE \
-	"if run is_firmware_update || mx4_pic is_extr; " \
-	"then usb start && fatls usb 0:1 && " \
+	"if mx4_pic is_extr; " \
+	"then sleep 2; usb start && fatls usb 0:1 && " \
 	"mx4_pic set_state 2 && fatload usb 0:1 ${loadaddr} ${updatefilename}; fi "
 
 #define PROBE_UBI_FOR_HMUPDATE \
-	"if ${firmware_update} -eq true; then " \
 	"ubi part ubi; ubifsmount ubi0:rootfs; "\
-	"ubifsload ${loadaddr} /boot/${updatefilename} && mx4_pic set_state 2; " \
-	"ubifsumount; fi "
+	"ubifsload ${loadaddr} /boot/${bsp_script} && mx4_pic set_state 2; " \
+	"ubifsumount; "
 
 #define PROBE_USB_FOR_RAMDISK \
 	"if mx4_pic is_extr; then " \
@@ -160,29 +159,27 @@
 	"&& fatload usb 0:1 ${ramdisk_loadaddr} ${ramdiskfilename} " \
 	"&& run ramboot; fi "
 
-#define IS_FIRMWARE_UPDATE \
-	"if ${firmware_update} -eq true; then true; fi"
 
 #define CONFIG_BOOTCOMMAND \
-    "if run probe_usb || run probe_ubi; then " \
-	    "if source ${loadaddr}; then " \
+    "if run probe_usb ; then " \
+		"if source ${loadaddr}; then " \
 	    	"exit; " \
 	    "else " \
 	    	"bootm ${loadaddr}; " \
 	    "fi; " \
     "fi; " \
-    "run probe_ramdisk; run ubiboot;"
+    "run probe_ubi && source ${loadaddr}; run probe_ramdisk; run ubiboot;"
 
 #define DFU_ALT_NAND_INFO	"vf-bcb part 0,1;u-boot part 0,2;ubi part 0,4"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"firmware_update=false\0" \
 	"probe_usb=" PROBE_USB_FOR_HMUPDATE "\0" \
 	"probe_ubi=" PROBE_UBI_FOR_HMUPDATE "\0" \
 	"probe_ramdisk=" PROBE_USB_FOR_RAMDISK "\0" \
-	"is_firmware_update=" IS_FIRMWARE_UPDATE "\0" \
 	"ramargs=root=/dev/ram0 rw\0" \
 	"updatefilename=vf_hmupdate.img\0" \
+	"bsp_script=vf_boot.scr\0" \
+	"delay_usb=true\0" \
 	"kernelfilename=uImage\0" \
 	"ramdiskfilename=uRamdisk\0" \
 	"ramdisk_loadaddr=1000000\0" \
