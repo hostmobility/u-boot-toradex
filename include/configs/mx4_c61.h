@@ -150,8 +150,8 @@
 
 #define PROBE_UBI_FOR_HMUPDATE \
 	"ubi part ubi; ubifsmount ubi0:rootfs; "\
-	"ubifsload ${loadaddr} /boot/${bsp_script} && mx4_pic set_state 2; " \
-	"ubifsumount; "
+	"ubifsload ${loadaddr} /boot/${bsp_script} && mx4_pic set_state 2; set ret $?;" \
+	"ubifsumount; itest $ret -eq true"
 
 #define PROBE_USB_FOR_RAMDISK \
 	"if mx4_pic is_extr; then " \
